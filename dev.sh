@@ -27,4 +27,4 @@ export MM_ADMIN_PASSWORD=$user_password
 export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
 export MM_SERVICESETTINGS_ENABLEDEVELOPER=true
 
-echo -e "\n===========================\n\n  THEN LOG IN TO MATTERMOST AT http://localhost:8065/$team_name/messages/@ai\n\n        username:  $user_name\n        password:  $user_password\n\n"
+echo -e "\n===========================\n\n  THEN LOG IN TO MATTERMOST AT http://localhost:8065/$team_name/      username:  $user_name\n        password:  $user_password\n\n"
