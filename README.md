@@ -12,14 +12,12 @@ This is forked project from the [Original Mattermost AI Plugin](https://github.c
 2. Run `./dev.sh`
 3. Navigate to `https://localhost:8065` with username and password from the terminal when running script at step 2
   ![Run dev script](docs/dev_sh.png)
-4. make
-5. make deploy
-6. MM_SERVICESETTINGS_SITEURL=http://localhost:8065 MM_ADMIN_USERNAME=root MM_ADMIN_PASSWORD='<PASSWORD_FROM_THE_TERMINAL>' make deploy
+4. MM_SERVICESETTINGS_SITEURL=http://localhost:8065 MM_ADMIN_USERNAME=root MM_ADMIN_PASSWORD='<PASSWORD_FROM_THE_TERMINAL>' make deploy
 ![Make Deploy](docs/make_deploy.png)
-7. Go to `http://localhost:8065/admin_console/plugins/plugin_mattermost-ai` and click `Add AI Service`
-8. Add API Key and Default Modal (gpt-3.5-turbo) and save
+5. Go to `http://localhost:8065/admin_console/plugins/plugin_mattermost-ai` and click `Add AI Service`
+6. Add API Key and Default Modal (gpt-3.5-turbo) and save
 ![Open AI Config](docs/open_ai_config.png)
-9. Chat with `@ai` \
+7. Chat with `@ai` \
 ![AI Chat](docs/ai_chat.png)
 
 # Additional Resources
