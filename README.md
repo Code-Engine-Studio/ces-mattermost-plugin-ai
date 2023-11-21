@@ -23,6 +23,14 @@ This is forked project from the [Original Mattermost AI Plugin](https://github.c
 7. Chat with `@ai` \
    ![AI Chat](docs/ai_chat.png)
 
+# How to pull data from wiki
+
+1. `cp .env.sample .env`
+2. Update .env with API Keys from CES Brains
+3. npm install
+4. npm run dev
+5. Output files should be located in scripts/out
+
 # How to stay update with the upstream repo
 
 This is a forked repo from Mattermost AI plugin. We will try to have minimum change on the core functions of Mattermost AI plugin. We will only need to create a small service to modify the template to add custom context in [ChatCompletion method of Prompt](/server/ai/prompts.go) for the chat completion.
@@ -32,4 +40,4 @@ This is a forked repo from Mattermost AI plugin. We will try to have minimum cha
 -   [Original Mattermost AI Plugin](https://github.com/mattermost/mattermost-plugin-ai)
 -   [Mattermost openops](https://github.com/mattermost/openops)
 -   [Mattermost Plugin Docs](https://developers.mattermost.com/integrate/plugins/)
--   [OpenAI API]()
+-   [OpenAI API](https://platform.openai.com/docs/overview)
