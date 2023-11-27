@@ -4,7 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -17,6 +19,8 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	router := gin.Default()
 	router.Use(p.ginlogger)
 	router.Use(p.MattermostAuthorizationRequired)
+
+	router.GET("/ai_threads", p.handleGetAIThreads)
 
 	postRouter := router.Group("/post/:postid")
 	postRouter.Use(p.postAuthorizationRequired)
@@ -61,4 +65,28 @@ func (p *Plugin) MattermostAuthorizationRequired(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
+}
+
+func (p *Plugin) handleGetAIThreads(c *gin.Context) {
+	userID := c.GetHeader("Mattermost-User-Id")
+
+	botDMChannel, err := p.pluginAPI.Channel.GetDirect(userID, p.botid)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "unable to get DM with AI bot"))
+		return
+	}
+
+	// Extra permissions checks are not totally nessiary since a user should always have permission to read their own DMs
+	if !p.pluginAPI.User.HasPermissionToChannel(userID, botDMChannel.Id, model.PermissionReadChannel) {
+		c.AbortWithError(http.StatusForbidden, errors.New("user doesn't have permission to read channel"))
+		return
+	}
+
+	posts, err := p.getAIThreads(botDMChannel.Id)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "failed to get posts for bot DM"))
+		return
+	}
+
+	c.JSON(http.StatusOK, posts)
 }

@@ -44,6 +44,32 @@ func (p *Plugin) newConversation(context ai.ConversationContext) error {
 		return err
 	}
 
+	go func() {
+		if err := p.generateTitle(context); err != nil {
+			p.API.LogError("Failed to generate title", "error", err.Error())
+			return
+		}
+	}()
+
+	return nil
+}
+
+func (p *Plugin) generateTitle(context ai.ConversationContext) error {
+	titleRequest := ai.BotConversation{
+		Posts:   []ai.Post{{Role: ai.PostRoleUser, Message: "Write a short title for the following request. Include only the title and nothing else, no quotations. Request:\n" + context.Post.Message}},
+		Context: context,
+	}
+	conversationTitle, err := p.getLLM().ChatCompletionNoStream(titleRequest, ai.WithmaxTokens(25))
+	if err != nil {
+		return errors.Wrap(err, "failed to get title")
+	}
+
+	conversationTitle = strings.Trim(conversationTitle, "\n \"'")
+
+	if err := p.saveTitle(context.Post.Id, conversationTitle); err != nil {
+		return errors.Wrap(err, "failed to save title")
+	}
+
 	return nil
 }
 
@@ -53,7 +79,7 @@ func (p *Plugin) continueConversation(context ai.ConversationContext) error {
 		return err
 	}
 
-	// Special handing for threads started by the bot in responce to a summarization request.
+	// Special handing for threads started by the bot in response to a summarization request.
 	var result *ai.TextStreamResult
 	originalThreadID, ok := threadData.Posts[0].GetProp(ThreadIDProp).(string)
 	if ok && originalThreadID != "" {
@@ -169,12 +195,12 @@ func (p *Plugin) selectEmoji(postToReact *model.Post, context ai.ConversationCon
 		return err
 	}
 
-	emojiName, err := p.getLLM().ChatCompletionNoStream(prompt, ai.WithmaxTokens(25))
+	emojiName, err := p.getLLM().ChatCompletionNoStream(prompt, ai.WithMaxTokens(25))
 	if err != nil {
 		return err
 	}
 
-	// Do some emoji post processing to hopfully make this an actual emoji.
+	// Do some emoji post processing to hopefully make this an actual emoji.
 	emojiName = strings.Trim(strings.TrimSpace(emojiName), ":")
 
 	if _, found := model.GetSystemEmojiId(emojiName); !found {
@@ -207,7 +233,7 @@ func (p *Plugin) spellcheckMessage(message string) (*string, error) {
 		return nil, err
 	}
 
-	result, err := p.getLLM().ChatCompletionNoStream(prompt, ai.WithmaxTokens(128))
+	result, err := p.getLLM().ChatCompletionNoStream(prompt, ai.WithMaxTokens(128))
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +251,7 @@ func (p *Plugin) changeTone(tone, message string) (*string, error) {
 		return nil, err
 	}
 
-	result, err := p.getLLM().ChatCompletionNoStream(prompt, ai.WithmaxTokens(128))
+	result, err := p.getLLM().ChatCompletionNoStream(prompt, ai.WithMaxTokens(128))
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +268,7 @@ func (p *Plugin) simplifyText(message string) (*string, error) {
 		return nil, err
 	}
 
-	result, err := p.getLLM().ChatCompletionNoStream(prompt, ai.WithmaxTokens(128))
+	result, err := p.getLLM().ChatCompletionNoStream(prompt, ai.WithMaxTokens(128))
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +286,7 @@ func (p *Plugin) aiChangeText(ask, message string) (*string, error) {
 		return nil, err
 	}
 
-	result, err := p.getLLM().ChatCompletionNoStream(prompt, ai.WithmaxTokens(128))
+	result, err := p.getLLM().ChatCompletionNoStream(prompt, ai.WithMaxTokens(128))
 	if err != nil {
 		return nil, err
 	}
