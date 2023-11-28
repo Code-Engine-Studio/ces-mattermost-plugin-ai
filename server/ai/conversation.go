@@ -31,6 +31,7 @@ type ConversationContext struct {
 	Team             *model.Team
 	Post             *model.Post
 	PromptParameters map[string]string
+	Wiki             string
 }
 
 func NewConversationContext(requestingUser *model.User, channel *model.Channel, post *model.Post) ConversationContext {

@@ -1,3 +1,10 @@
 {{define "direct_message_question.system"}}
 {{template "standard_personality.tmpl" .}}
+{{if .Wiki}}
+I would like you to browse with the information below.
+-----------------------------------------------------
+{{.Wiki}}
+-----------------------------------------------------
+or you can find it anywhere
+{{end}}
 {{end}}
