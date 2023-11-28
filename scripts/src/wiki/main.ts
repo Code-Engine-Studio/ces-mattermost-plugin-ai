@@ -2,8 +2,8 @@
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { api } from "./api.js";
-import { JSON_OUT_PATH, PLAINTEXT_OUT_PATH, OUT_PATH } from "./configs.js";
-import { sleep, writeJsonToOutDir, writePlaintextToOutDir } from "./utils.js";
+import { JSON_OUT_PATH, PLAINTEXT_OUT_PATH, OUT_PATH } from "../configs.js";
+import { sleep, writeJsonToOutDir, writePlaintextToOutDir } from "../utils.js";
 
 // Step 1: Create out dirs
 if (!existsSync(OUT_PATH)) {

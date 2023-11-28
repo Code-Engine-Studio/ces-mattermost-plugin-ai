@@ -2,7 +2,12 @@ import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { JSON_OUT_PATH, PLAINTEXT_OUT_PATH } from "./configs.js";
 
-export const writeJsonToOutDir = (value: any, name: string) => {
+type WriteFileInput<T = unknown> = {
+  value: T;
+  name: string;
+};
+
+export const writeJsonToOutDir = ({ name, value }: WriteFileInput) => {
   let fileName = name;
 
   if (!name.endsWith(".json")) {
@@ -18,7 +23,10 @@ export const writeJsonToOutDir = (value: any, name: string) => {
   );
 };
 
-export const writePlaintextToOutDir = (value: any, name: string) => {
+export const writePlaintextToOutDir = ({
+  name,
+  value,
+}: WriteFileInput<string>) => {
   let fileName = name;
 
   if (!name.endsWith(".txt")) {
