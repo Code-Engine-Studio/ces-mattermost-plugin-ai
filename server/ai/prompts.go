@@ -13,6 +13,10 @@ type Prompts struct {
 	getBuiltInTools func() []Tool
 }
 
+type ExtraPromptInformation struct {
+	Wiki string
+}
+
 const PromptExtension = "tmpl"
 const SystemSubTemplateName = ".system"
 const UserSubTemplateName = ".user"
