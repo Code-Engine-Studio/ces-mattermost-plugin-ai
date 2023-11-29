@@ -15,3 +15,7 @@ export const WIKI_CONFIGS = {
 export const OUT_PATH = join(__dirname, "..", "out");
 export const JSON_OUT_PATH = join(OUT_PATH, "json");
 export const PLAINTEXT_OUT_PATH = join(OUT_PATH, "plaintext");
+export const FINAL_OUT_PATH = join(OUT_PATH, "final-output");
+
+// File names
+export const FINAL_OUTPUT_NAME = "finalOutput";

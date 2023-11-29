@@ -2,8 +2,21 @@
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { api } from "./api.js";
-import { JSON_OUT_PATH, PLAINTEXT_OUT_PATH, OUT_PATH } from "./configs.js";
-import { sleep, writeJsonToOutDir, writePlaintextToOutDir } from "./utils.js";
+import {
+  JSON_OUT_PATH,
+  PLAINTEXT_OUT_PATH,
+  OUT_PATH,
+  FINAL_OUT_PATH,
+  FINAL_OUTPUT_NAME,
+} from "./configs.js";
+import {
+  sleep,
+  writeJsonToOutDir,
+  writePlaintextToOutDir,
+  writeFinalOutputToOutDir,
+  sanitizeText,
+} from "./utils.js";
+import { FinalOutput } from "./types.js";
 
 // Step 1: Create out dirs
 if (!existsSync(OUT_PATH)) {
@@ -18,8 +31,12 @@ if (!existsSync(PLAINTEXT_OUT_PATH)) {
   await mkdir(PLAINTEXT_OUT_PATH);
 }
 
+if (!existsSync(FINAL_OUT_PATH)) {
+  await mkdir(FINAL_OUT_PATH);
+}
+
 try {
-  let countPage = 0;
+  const pages: FinalOutput[] = [];
   // Step 2: List books
   const listBooksRes = await api.listBooks();
 
@@ -48,10 +65,20 @@ try {
       if (bookContent.type === "page") {
         const pageResponse = await api.exportPageAsPlaintext(bookContent.id);
 
+        const pagePlainText = await pageResponse.text();
+        const sanitizedText = sanitizeText(pagePlainText);
+
         await writePlaintextToOutDir(
-          await pageResponse.text(),
+          sanitizedText,
           `${bookData.slug}_${bookContent.slug}`
         );
+
+        pages.push({
+          id: bookContent.id,
+          name: bookContent.name,
+          url: bookContent.url,
+          description: sanitizedText,
+        });
 
         console.info(`\tFetched page: ${bookContent.name}`);
         countPagesOfEachBooks++;
@@ -63,10 +90,20 @@ try {
         for (const page of bookContent.pages) {
           const pageResponse = await api.exportPageAsPlaintext(page.id);
 
+          const pagePlainText = await pageResponse.text();
+          const sanitizedText = sanitizeText(pagePlainText);
+
           await writePlaintextToOutDir(
-            await pageResponse.text(),
+            sanitizedText,
             `${bookData.slug}_${bookContent.slug}_${page.slug}`
           );
+
+          pages.push({
+            id: page.id,
+            name: page.name,
+            url: page.url,
+            description: sanitizedText,
+          });
 
           console.info(`\tFetched page: ${page.name}`);
           countPagesOfEachBooks++;
@@ -77,12 +114,12 @@ try {
       }
     }
 
-    countPage += countPagesOfEachBooks;
     console.info(`${book.name} has ${countPagesOfEachBooks} pages`);
     console.info("----------------------------------------");
   }
 
-  console.info(`Total pages in wiki: ${countPage}`);
+  await writeFinalOutputToOutDir(pages, FINAL_OUTPUT_NAME);
+  console.info(`Total pages in wiki: ${pages.length}`);
 } catch (err) {
   console.error("Error: ", err);
 }
