@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
-import book from "../out/json/books.json" assert { type: "json" };
+import book from "../out/books/books.json" assert { type: "json" };
 import {
   FINAL_DATA_OUT_PATH,
   BOOKS_OUT_PATH,

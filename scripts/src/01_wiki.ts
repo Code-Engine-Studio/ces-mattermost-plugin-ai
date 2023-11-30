@@ -2,13 +2,16 @@
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { api } from "./api.js";
-import { BOOKS_OUT_PATH, OUT_PATH, PAGES_OUT_PATH } from "./configs.js";
-import { FinalData } from "./types.js";
+import {
+  BOOKS_OUT_PATH,
+  FINAL_DATA_OUT_PATH,
+  OUT_PATH,
+  PAGES_OUT_PATH,
+} from "./configs.js";
 import {
   sanitizeText,
   sleep,
   writeBook,
-  writeFinalData,
   writePlaintextToOutDir,
 } from "./utils.js";
 
@@ -25,8 +28,12 @@ if (!existsSync(PAGES_OUT_PATH)) {
   await mkdir(PAGES_OUT_PATH);
 }
 
+if (!existsSync(FINAL_DATA_OUT_PATH)) {
+  await mkdir(FINAL_DATA_OUT_PATH);
+}
+
 try {
-  const pages: FinalData[] = [];
+  let pagesCount = 0;
   // Step 2: List books
   const listBooksRes = await api.listBooks();
 
@@ -69,13 +76,6 @@ try {
           filename: `${bookData.slug}_${bookContent.slug}`,
         });
 
-        pages.push({
-          id: pages.length + 1,
-          title: bookContent.name,
-          url: bookContent.url,
-          description: sanitizedText,
-        });
-
         console.info(`\tFetched page: ${bookContent.name}`);
         countPagesOfEachBooks++;
         await sleep(500); // Avoid HTTP 429 - rate limit
@@ -94,13 +94,6 @@ try {
             filename: `${bookData.slug}_${bookContent.slug}_${page.slug}`,
           });
 
-          pages.push({
-            id: pages.length + 1,
-            title: page.name,
-            url: page.url,
-            description: sanitizedText,
-          });
-
           console.info(`\tFetched page: ${page.name}`);
           countPagesOfEachBooks++;
           await sleep(500); // Avoid HTTP 429 - rate limit
@@ -108,17 +101,15 @@ try {
       } else {
         throw new Error("Undefined book content type: ", bookContent.type);
       }
+
+      pagesCount += countPagesOfEachBooks;
     }
 
     console.info(`${book.name} has ${countPagesOfEachBooks} pages`);
     console.info("----------------------------------------");
   }
 
-  await writeFinalData({
-    value: pages,
-  });
-
-  console.info(`Total pages in wiki: ${pages.length}`);
+  console.info(`Total pages in wiki: ${pagesCount}`);
 } catch (err) {
   console.error("Error: ", err);
 }
