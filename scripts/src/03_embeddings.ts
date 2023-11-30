@@ -8,7 +8,7 @@ import {
   FINAL_DATA_OUT_PATH,
   OPENAI_API_KEY,
 } from "./configs.js";
-import { writeEmbeddings } from "./utils.js";
+import { sleep, writeEmbeddings } from "./utils.js";
 
 // Step 1: Create out dirs
 if (!existsSync(EMBEDDINGS_OUT_PATH)) {
@@ -34,17 +34,24 @@ const wikiData = JSON.parse(fileData.toString());
 const qdrantPoints = [];
 
 // Step 2: Create embeddings
-for (const data of wikiData) {
+for (let i = 0; i < wikiData.length; i++) {
   const embeddings = await openai.embeddings.create({
     model: "text-embedding-ada-002",
-    input: data.description,
+    input: wikiData[i].description,
   });
 
   qdrantPoints.push({
-    id: data.id,
+    id: wikiData[i].id,
     vector: embeddings.data[0].embedding,
-    payload: data,
+    payload: wikiData[i],
   });
+
+  console.log(
+    `Created embeddings for page: ${wikiData[i].title} - completed ${i + 1}/${
+      wikiData.length
+    }`
+  );
+  await sleep(1000);
 }
 
 // Step 4: Write out embeddings to file
