@@ -30,11 +30,11 @@ const fileData = readFileSync(
   path.join(FINAL_DATA_OUT_PATH, FINAL_DATA_FILENAME)
 );
 
-const finalData = JSON.parse(fileData.toString());
+const wikiData = JSON.parse(fileData.toString());
 const qdrantPoints = [];
 
 // Step 2: Create embeddings
-for (const data of finalData.slice(0, 5)) {
+for (const data of wikiData) {
   const embeddings = await openai.embeddings.create({
     model: "text-embedding-ada-002",
     input: data.description,
