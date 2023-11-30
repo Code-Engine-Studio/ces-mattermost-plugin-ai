@@ -45,3 +45,5 @@ await qdrantClient.upsert(QDRANT_CONFIGS.COLLECTION_NAME, {
   wait: true,
   points: embeddingsData,
 });
+
+console.log("Finished upsert to Qdrant database 🎉🎉🎉");

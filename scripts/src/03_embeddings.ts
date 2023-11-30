@@ -58,3 +58,5 @@ for (let i = 0; i < wikiData.length; i++) {
 await writeEmbeddings({
   value: qdrantPoints,
 });
+
+console.log("Finished generated embeddings from the wiki 🚀🚀🚀");
