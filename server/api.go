@@ -25,28 +25,17 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	postRouter := router.Group("/post/:postid")
 	postRouter.Use(p.postAuthorizationRequired)
 	postRouter.POST("/react", p.handleReact)
-	postRouter.POST("/feedback/positive", p.handlePositivePostFeedback)
-	postRouter.POST("/feedback/negative", p.handleNegativePostFeedback)
 	postRouter.POST("/summarize", p.handleSummarize)
 	postRouter.POST("/transcribe", p.handleTranscribe)
 	postRouter.POST("/stop", p.handleStop)
 	postRouter.POST("/regenerate", p.handleRegenerate)
 
-	textRouter := router.Group("/text")
-	textRouter.Use(p.textAuthorizationRequired)
-	textRouter.POST("/simplify", p.handleSimplify)
-	textRouter.POST("/change_tone/:tone", p.handleChangeTone)
-	textRouter.POST("/ask_ai_change_text", p.handleAiChangeText)
-	textRouter.POST("/explain_code", p.handleExplainCode)
-	textRouter.POST("/suggest_code_improvements", p.handleSuggestCodeImprovements)
-
 	channelRouter := router.Group("/channel/:channelid")
 	channelRouter.Use(p.channelAuthorizationRequired)
-	channelRouter.POST("/summarize/since", p.handleSummarizeSince)
+	channelRouter.POST("/since", p.handleSince)
 
 	adminRouter := router.Group("/admin")
 	adminRouter.Use(p.mattermostAdminAuthorizationRequired)
-	adminRouter.GET("/feedback", p.handleGetFeedback)
 
 	router.ServeHTTP(w, r)
 }

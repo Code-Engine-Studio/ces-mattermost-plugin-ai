@@ -38,6 +38,15 @@ This is forked project from the [Original Mattermost AI Plugin](https://github.c
 This is a forked repo from Mattermost AI plugin. We will try to have minimum change on the core functions of Mattermost AI plugin. We can use the `Sync fork` feature from Github to synchronize with the upstream repository. \
 ![Sync Fork](docs/sync_fork.png)
 
+If there was a merge conflicts, follow these steps and resolve merge conflicts in your editor:
+
+-   `git fetch upstream`
+-   `git merge upstream/master`
+-   Resolve merge conflicts
+-   `git add .`
+-   `git commit -m "<put-some-messages-here>"` //Follow the commit styles
+-   `git push origin master`
+
 # Additional Resources
 
 -   [Original Mattermost AI Plugin](https://github.com/mattermost/mattermost-plugin-ai)
