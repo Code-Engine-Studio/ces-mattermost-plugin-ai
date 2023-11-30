@@ -30,7 +30,13 @@ This is forked project from the [Original Mattermost AI Plugin](https://github.c
 2. `cp .env.sample .env`
 3. Update `.env` with API Keys from CES Brains
 4. npm install
-5. npm run dev
+5. Run followings command in order
+
+-   `npm run dev:wiki`
+-   `npm run dev:prepare`
+-   `npm run dev:embeddings`
+-   `npm run dev:qdrant`
+
 6. Output files should be located in scripts/out
 
 # How to stay update with the upstream repo
