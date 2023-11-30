@@ -1,9 +1,12 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
+  EMBEDDINGS_FILENAME,
+  EMBEDDINGS_OUT_PATH,
+  FINAL_DATA_FILENAME,
   FINAL_DATA_OUT_PATH,
-  JSON_OUT_PATH,
-  PLAINTEXT_OUT_PATH,
+  BOOKS_OUT_PATH,
+  PAGES_OUT_PATH,
 } from "./configs.js";
 
 type WriteFileInput<T = unknown> = {
@@ -25,7 +28,7 @@ export const writePlaintextToOutDir = ({
     finalFilename = finalFilename.concat(".txt");
   }
 
-  return writeFile(path.join(PLAINTEXT_OUT_PATH, finalFilename), value, {
+  return writeFile(path.join(PAGES_OUT_PATH, finalFilename), value, {
     encoding: "utf8",
   });
 };
@@ -51,10 +54,21 @@ export const writeJsonFile = ({
 };
 
 export const writeBook = ({ filename, value }: WriteFileInput) =>
-  writeJsonFile({ value, filename, folderPath: JSON_OUT_PATH });
+  writeJsonFile({ value, filename, folderPath: BOOKS_OUT_PATH });
 
-export const writeFinalData = ({ filename, value }: WriteFileInput) =>
-  writeJsonFile({ value, filename, folderPath: FINAL_DATA_OUT_PATH });
+export const writeFinalData = ({ value }: Omit<WriteFileInput, "filename">) =>
+  writeJsonFile({
+    value,
+    filename: FINAL_DATA_FILENAME,
+    folderPath: FINAL_DATA_OUT_PATH,
+  });
+
+export const writeEmbeddings = ({ value }: Omit<WriteFileInput, "filename">) =>
+  writeJsonFile({
+    value,
+    filename: EMBEDDINGS_FILENAME,
+    folderPath: EMBEDDINGS_OUT_PATH,
+  });
 
 export const sanitizeText = (value: string) =>
   value

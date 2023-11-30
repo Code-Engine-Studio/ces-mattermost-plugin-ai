@@ -9,9 +9,10 @@
   "scripts": {
     "build": "tsc",
     "dev": "node --env-file=.env --no-warnings=ExperimentalWarning --loader ts-node/esm/transpile-only",
-    "dev:pull-wiki": "npm run dev src/wiki.ts",
-    "dev:gen-final-data": "npm run dev src/generate-final-data.ts",
-    "dev:upsert-data": "npm run dev src/qdrant.ts",
+    "dev:wiki": "npm run dev src/01_wiki.ts",
+    "dev:prepare": "npm run dev src/02_prepare.ts",
+    "dev:embeddings": "npm run dev src/03_embeddings.ts",
+    "dev:qdrant": "npm run dev src/04_qdrant.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "contributors": [

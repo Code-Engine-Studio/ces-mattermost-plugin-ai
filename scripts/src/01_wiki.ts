@@ -2,12 +2,7 @@
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { api } from "./api.js";
-import {
-  FINAL_DATA_FILENAME,
-  JSON_OUT_PATH,
-  OUT_PATH,
-  PLAINTEXT_OUT_PATH,
-} from "./configs.js";
+import { BOOKS_OUT_PATH, OUT_PATH, PAGES_OUT_PATH } from "./configs.js";
 import { FinalData } from "./types.js";
 import {
   sanitizeText,
@@ -22,12 +17,12 @@ if (!existsSync(OUT_PATH)) {
   await mkdir(OUT_PATH);
 }
 
-if (!existsSync(JSON_OUT_PATH)) {
-  await mkdir(JSON_OUT_PATH);
+if (!existsSync(BOOKS_OUT_PATH)) {
+  await mkdir(BOOKS_OUT_PATH);
 }
 
-if (!existsSync(PLAINTEXT_OUT_PATH)) {
-  await mkdir(PLAINTEXT_OUT_PATH);
+if (!existsSync(PAGES_OUT_PATH)) {
+  await mkdir(PAGES_OUT_PATH);
 }
 
 try {
@@ -121,7 +116,6 @@ try {
 
   await writeFinalData({
     value: pages,
-    filename: FINAL_DATA_FILENAME,
   });
 
   console.info(`Total pages in wiki: ${pages.length}`);
