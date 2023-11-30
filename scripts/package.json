@@ -9,8 +9,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "node --env-file=.env --no-warnings=ExperimentalWarning --loader ts-node/esm/transpile-only",
-    "dev:wiki": "npm run dev src/wiki/main.ts",
-    "dev:upsert": "npm run dev src/qdrant/main.ts",
+    "dev:pull-wiki": "npm run dev src/wiki.ts",
+    "dev:gen-final-data": "npm run dev src/generate-final-data.ts",
+    "dev:upsert-data": "npm run dev src/qdrant.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "contributors": [
@@ -21,7 +22,9 @@
     }
   ],
   "dependencies": {
+    "@qdrant/qdrant-js": "^1.6.0",
     "node-fetch": "^3.3.2",
+    "openai": "^4.20.1",
     "rimraf": "^5.0.5"
   },
   "devDependencies": {

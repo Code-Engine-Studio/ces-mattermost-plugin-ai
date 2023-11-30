@@ -2,8 +2,20 @@
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { api } from "./api.js";
-import { JSON_OUT_PATH, PLAINTEXT_OUT_PATH, OUT_PATH } from "./configs.js";
-import { sleep, writeJsonToOutDir, writePlaintextToOutDir } from "./utils.js";
+import {
+  FINAL_DATA_FILENAME,
+  JSON_OUT_PATH,
+  OUT_PATH,
+  PLAINTEXT_OUT_PATH,
+} from "./configs.js";
+import { FinalData } from "./types.js";
+import {
+  sanitizeText,
+  sleep,
+  writeBook,
+  writeFinalData,
+  writePlaintextToOutDir,
+} from "./utils.js";
 
 // Step 1: Create out dirs
 if (!existsSync(OUT_PATH)) {
@@ -19,13 +31,16 @@ if (!existsSync(PLAINTEXT_OUT_PATH)) {
 }
 
 try {
-  let countPage = 0;
+  const pages: FinalData[] = [];
   // Step 2: List books
   const listBooksRes = await api.listBooks();
 
   const books = await listBooksRes.json();
 
-  await writeJsonToOutDir({ value: books, name: "books.json" });
+  await writeBook({
+    value: books,
+    filename: "books.json",
+  });
   console.info("Fetched wiki books");
   console.info("----------------------------------------");
 
@@ -37,9 +52,9 @@ try {
     const bookDataRes = await api.readBook(book.id);
     const bookData = await bookDataRes.json();
 
-    await writeJsonToOutDir({
+    await writeBook({
       value: bookData,
-      name: `book_${book.slug}.json`,
+      filename: `book_${book.slug}.json`,
     });
     console.info(`Fetched book: ${book.name}`);
 
@@ -51,9 +66,19 @@ try {
       if (bookContent.type === "page") {
         const pageResponse = await api.exportPageAsPlaintext(bookContent.id);
 
+        const pagePlainText = await pageResponse.text();
+        const sanitizedText = sanitizeText(pagePlainText);
+
         await writePlaintextToOutDir({
-          value: await pageResponse.text(),
-          name: `${bookData.slug}_${bookContent.slug}`,
+          value: sanitizedText,
+          filename: `${bookData.slug}_${bookContent.slug}`,
+        });
+
+        pages.push({
+          id: pages.length + 1,
+          title: bookContent.name,
+          url: bookContent.url,
+          description: sanitizedText,
         });
 
         console.info(`\tFetched page: ${bookContent.name}`);
@@ -66,9 +91,19 @@ try {
         for (const page of bookContent.pages) {
           const pageResponse = await api.exportPageAsPlaintext(page.id);
 
+          const pagePlainText = await pageResponse.text();
+          const sanitizedText = sanitizeText(pagePlainText);
+
           await writePlaintextToOutDir({
-            value: await pageResponse.text(),
-            name: `${bookData.slug}_${bookContent.slug}_${page.slug}`,
+            value: sanitizedText,
+            filename: `${bookData.slug}_${bookContent.slug}_${page.slug}`,
+          });
+
+          pages.push({
+            id: pages.length + 1,
+            title: page.name,
+            url: page.url,
+            description: sanitizedText,
           });
 
           console.info(`\tFetched page: ${page.name}`);
@@ -80,12 +115,16 @@ try {
       }
     }
 
-    countPage += countPagesOfEachBooks;
     console.info(`${book.name} has ${countPagesOfEachBooks} pages`);
     console.info("----------------------------------------");
   }
 
-  console.info(`Total pages in wiki: ${countPage}`);
+  await writeFinalData({
+    value: pages,
+    filename: FINAL_DATA_FILENAME,
+  });
+
+  console.info(`Total pages in wiki: ${pages.length}`);
 } catch (err) {
   console.error("Error: ", err);
 }
