@@ -5,7 +5,7 @@ team_display_name="Mattermost AI"
 channel_name="ai"
 channel_display_name="AI"
 user_name="root"
-user_password="$(openssl rand -base64 14)"
+user_password="super_secret_password"
 
 echo "Starting Mattermost with OpenAI for demo..."
 docker compose -f docker-compose.yml up -d
