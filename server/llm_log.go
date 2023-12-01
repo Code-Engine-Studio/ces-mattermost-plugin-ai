@@ -41,3 +41,7 @@ func (w *LanguageModelLogWrapper) CountTokens(text string) int {
 func (w *LanguageModelLogWrapper) TokenLimit() int {
 	return w.wrapped.TokenLimit()
 }
+
+func (w *LanguageModelLogWrapper) GenerateEmbeddings(text string) []float32 {
+	return w.wrapped.GenerateEmbeddings(text)
+}

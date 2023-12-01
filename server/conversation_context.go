@@ -1,16 +1,12 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/mattermost/mattermost-plugin-ai/server/ai"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
 func (p *Plugin) MakeConversationContext(user *model.User, channel *model.Channel, post *model.Post) ai.ConversationContext {
 	context := ai.NewConversationContext(user, channel, post)
-	fmt.Printf("cesai-post %+v\n", post)
-	fmt.Printf("cesai-p%+v\n", p)
 	if p.pluginAPI.Configuration.GetConfig().TeamSettings.SiteName != nil {
 		context.ServerName = *p.pluginAPI.Configuration.GetConfig().TeamSettings.SiteName
 	}

@@ -98,3 +98,7 @@ func (a *AskSage) CountTokens(text string) int {
 func (a *AskSage) TokenLimit() int {
 	return 4096
 }
+
+func (a *AskSage) GenerateEmbeddings(text string) []float32 {
+	return nil
+}

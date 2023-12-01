@@ -83,3 +83,7 @@ func (a *Anthropic) CountTokens(text string) int {
 func (a *Anthropic) TokenLimit() int {
 	return 100000
 }
+
+func (a *Anthropic) GenerateEmbeddings(text string) []float32 {
+	return nil
+}
