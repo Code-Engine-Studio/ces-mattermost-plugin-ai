@@ -32,6 +32,7 @@ type LanguageModel interface {
 
 	CountTokens(text string) int
 	TokenLimit() int
+	GenerateEmbeddings(text string) []float32
 }
 
 type Transcriber interface {

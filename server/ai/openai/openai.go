@@ -316,3 +316,19 @@ func (s *OpenAI) TokenLimit() int {
 
 	return 4096
 }
+
+func (s *OpenAI) GenerateEmbeddings(content string) []float32 {
+	queryReq := openai.EmbeddingRequest{
+		Input: []string{content},
+		Model: openai.AdaEmbeddingV2,
+	}
+
+	queryResponse, err := s.client.CreateEmbeddings(context.Background(), queryReq)
+	if err != nil {
+		fmt.Printf("fatal %+v\n", err)
+	}
+
+	queryEmbedding := queryResponse.Data[0]
+
+	return queryEmbedding.Embedding
+}
