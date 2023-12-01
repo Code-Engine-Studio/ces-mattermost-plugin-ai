@@ -241,7 +241,7 @@ func (p *Plugin) handleMentions(post *model.Post, postingUser *model.User, chann
 		return errors.Wrap(ErrNoResponse, "not responding to other bots")
 	}
 
-	if err := p.processUserRequestToBot(p.MakeConversationContext(postingUser, channel, post), post); err != nil {
+	if err := p.processUserRequestToBot(p.MakeConversationContext(postingUser, channel, post)); err != nil {
 		return errors.Wrap(err, "unable to process bot mention")
 	}
 
@@ -257,7 +257,7 @@ func (p *Plugin) handleDMs(channel *model.Channel, postingUser *model.User, post
 		return errors.Wrap(ErrNoResponse, "not responding to other bots")
 	}
 
-	if err := p.processUserRequestToBot(p.MakeConversationContext(postingUser, channel, post), post); err != nil {
+	if err := p.processUserRequestToBot(p.MakeConversationContext(postingUser, channel, post)); err != nil {
 		return errors.Wrap(err, "unable to process bot DM")
 	}
 
