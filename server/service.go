@@ -16,13 +16,6 @@ const (
 )
 
 func (p *Plugin) processUserRequestToBot(context ai.ConversationContext) error {
-	embedding := p.getLLM().GenerateEmbeddings(context.Post.Message)
-
-	// TODO: use the embedding to get the wiki content
-	fmt.Printf("cesaiembedding %+v\n", context.Post.Message)
-	fmt.Printf("cesaiembedding %+v\n", embedding)
-
-	// context.Wiki := wikiContent
 	if context.Post.RootId == "" {
 		return p.newConversation(context)
 	}
@@ -35,6 +28,7 @@ func (p *Plugin) newConversation(context ai.ConversationContext) error {
 	if err != nil {
 		return err
 	}
+
 	conversation.AddUserPost(context.Post)
 
 	result, err := p.getLLM().ChatCompletion(conversation)

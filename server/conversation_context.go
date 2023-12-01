@@ -11,6 +11,9 @@ func (p *Plugin) MakeConversationContext(user *model.User, channel *model.Channe
 		context.ServerName = *p.pluginAPI.Configuration.GetConfig().TeamSettings.SiteName
 	}
 
+	embedding := p.getLLM().GenerateEmbeddings((context.Post.Message))
+	context.Wiki = p.vectorDbClient.SearchPoints(embedding)
+
 	if license := p.pluginAPI.System.GetLicense(); license != nil && license.Customer != nil {
 		context.CompanyName = license.Customer.Company
 	}
