@@ -71,6 +71,7 @@ func resolveffmpegPath() string {
 }
 
 func (p *Plugin) OnActivate() error {
+	connectDb()
 	p.pluginAPI = pluginapi.NewClient(p.API, p.Driver)
 
 	botID, err := p.pluginAPI.Bot.EnsureBot(&model.Bot{
