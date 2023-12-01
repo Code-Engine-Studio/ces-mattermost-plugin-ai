@@ -39,6 +39,12 @@ This is forked project from the [Original Mattermost AI Plugin](https://github.c
 
 6. Output files should be located in scripts/out
 
+If you want to regenerate the file `finalOutput.json` after manually editing the output files locally.
+
+npm run gen
+
+This will update the file `finalOutput.json` in scripts/out/final-output
+
 # How to stay update with the upstream repo
 
 This is a forked repo from Mattermost AI plugin. We will try to have minimum change on the core functions of Mattermost AI plugin. We can use the `Sync fork` feature from Github to synchronize with the upstream repository. \
