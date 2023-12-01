@@ -59,6 +59,7 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/qdrant/go-client v1.6.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/tinylib/msgp v1.1.8 // indirect
