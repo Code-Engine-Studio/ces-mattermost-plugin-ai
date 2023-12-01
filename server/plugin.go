@@ -17,6 +17,7 @@ import (
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/pkg/errors"
+	pb "github.com/qdrant/go-client/qdrant"
 )
 
 const (
@@ -55,6 +56,8 @@ type Plugin struct {
 
 	streamingContexts      map[string]context.CancelFunc
 	streamingContextsMutex sync.Mutex
+
+	qdrantClient pb.QdrantClient
 }
 
 func resolveffmpegPath() string {
@@ -71,7 +74,12 @@ func resolveffmpegPath() string {
 }
 
 func (p *Plugin) OnActivate() error {
-	connectDb()
+	qdrantClient, err := connectDb()
+	if err != nil {
+		return errors.Wrapf(err, "failed to load Qdrant")
+	}
+	p.qdrantClient = qdrantClient
+
 	p.pluginAPI = pluginapi.NewClient(p.API, p.Driver)
 
 	botID, err := p.pluginAPI.Bot.EnsureBot(&model.Bot{
@@ -233,7 +241,7 @@ func (p *Plugin) handleMentions(post *model.Post, postingUser *model.User, chann
 		return errors.Wrap(ErrNoResponse, "not responding to other bots")
 	}
 
-	if err := p.processUserRequestToBot(p.MakeConversationContext(postingUser, channel, post), post); err != nil {
+	if err := p.processUserRequestToBot(p.MakeConversationContext(postingUser, channel, post)); err != nil {
 		return errors.Wrap(err, "unable to process bot mention")
 	}
 
@@ -249,7 +257,7 @@ func (p *Plugin) handleDMs(channel *model.Channel, postingUser *model.User, post
 		return errors.Wrap(ErrNoResponse, "not responding to other bots")
 	}
 
-	if err := p.processUserRequestToBot(p.MakeConversationContext(postingUser, channel, post), post); err != nil {
+	if err := p.processUserRequestToBot(p.MakeConversationContext(postingUser, channel, post)); err != nil {
 		return errors.Wrap(err, "unable to process bot DM")
 	}
 

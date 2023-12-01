@@ -15,18 +15,15 @@ const (
 	defaultSpellcheckLanguage = "English"
 )
 
-func (p *Plugin) processUserRequestToBot(context ai.ConversationContext, post *model.Post) error {
+func (p *Plugin) processUserRequestToBot(context ai.ConversationContext) error {
 	if context.Post.RootId == "" {
-		return p.newConversation(context, post)
+		return p.newConversation(context)
 	}
 
-	return p.continueConversation(context, post)
+	return p.continueConversation(context)
 }
 
-func (p *Plugin) newConversation(context ai.ConversationContext, post *model.Post) error {
-	// TODO: Fetch data from wiki here
-
-	context.Wiki += ""
+func (p *Plugin) newConversation(context ai.ConversationContext) error {
 	conversation, err := p.prompts.ChatCompletion(ai.PromptDirectMessageQuestion, context)
 	if err != nil {
 		return err
@@ -75,7 +72,7 @@ func (p *Plugin) generateTitle(context ai.ConversationContext) error {
 	return nil
 }
 
-func (p *Plugin) continueConversation(context ai.ConversationContext, post *model.Post) error {
+func (p *Plugin) continueConversation(context ai.ConversationContext) error {
 	threadData, err := p.getThreadAndMeta(context.Post.RootId)
 	if err != nil {
 		return err
@@ -112,9 +109,6 @@ func (p *Plugin) continueConversation(context ai.ConversationContext, post *mode
 			return err
 		}
 	} else {
-		// TODO: Fetch data from wiki here
-
-		context.Wiki += ""
 		prompt, err := p.prompts.ChatCompletion(ai.PromptDirectMessageQuestion, context)
 		if err != nil {
 			return err
@@ -146,8 +140,6 @@ func (p *Plugin) continueThreadConversation(questionThreadData *ThreadData, orig
 	originalThread := formatThread(originalThreadData)
 
 	context.PromptParameters = map[string]string{"Thread": originalThread}
-	// TODO: Fetch data from wiki here
-
 	prompt, err := p.prompts.ChatCompletion(ai.PromptSummarizeThread, context)
 	if err != nil {
 		return nil, err
