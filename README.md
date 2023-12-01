@@ -22,7 +22,7 @@ This is forked project from the [Original Mattermost AI Plugin](https://github.c
    ![Open AI Config](docs/open_ai_config.png)
 7. Chat with `@ai` \
    ![AI Chat](docs/ai_chat.png)
-8. To uninstall, run `./`
+8. To uninstall, run `./clean-dev.sh`
 
 # How to pull data from wiki
 
@@ -30,7 +30,13 @@ This is forked project from the [Original Mattermost AI Plugin](https://github.c
 2. `cp .env.sample .env`
 3. Update `.env` with API Keys from CES Brains
 4. npm install
-5. npm run dev
+5. Run followings command in order
+
+-   `npm run dev:wiki`
+-   `npm run dev:prepare`
+-   `npm run dev:embeddings`
+-   `npm run dev:qdrant`
+
 6. Output files should be located in scripts/out
 
 # How to stay update with the upstream repo

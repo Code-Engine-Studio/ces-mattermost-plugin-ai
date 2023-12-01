@@ -3,46 +3,46 @@ import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { api } from "./api.js";
 import {
-  JSON_OUT_PATH,
-  PLAINTEXT_OUT_PATH,
+  BOOKS_OUT_PATH,
+  FINAL_DATA_OUT_PATH,
   OUT_PATH,
-  FINAL_OUT_PATH,
-  FINAL_OUTPUT_NAME,
+  PAGES_OUT_PATH,
 } from "./configs.js";
 import {
-  sleep,
-  writeJsonToOutDir,
-  writePlaintextToOutDir,
-  writeFinalOutputToOutDir,
   sanitizeText,
+  sleep,
+  writeBook,
+  writePlaintextToOutDir,
 } from "./utils.js";
-import { FinalOutput } from "./types.js";
 
 // Step 1: Create out dirs
 if (!existsSync(OUT_PATH)) {
   await mkdir(OUT_PATH);
 }
 
-if (!existsSync(JSON_OUT_PATH)) {
-  await mkdir(JSON_OUT_PATH);
+if (!existsSync(BOOKS_OUT_PATH)) {
+  await mkdir(BOOKS_OUT_PATH);
 }
 
-if (!existsSync(PLAINTEXT_OUT_PATH)) {
-  await mkdir(PLAINTEXT_OUT_PATH);
+if (!existsSync(PAGES_OUT_PATH)) {
+  await mkdir(PAGES_OUT_PATH);
 }
 
-if (!existsSync(FINAL_OUT_PATH)) {
-  await mkdir(FINAL_OUT_PATH);
+if (!existsSync(FINAL_DATA_OUT_PATH)) {
+  await mkdir(FINAL_DATA_OUT_PATH);
 }
 
 try {
-  const pages: FinalOutput[] = [];
+  let pagesCount = 0;
   // Step 2: List books
   const listBooksRes = await api.listBooks();
 
   const books = await listBooksRes.json();
 
-  await writeJsonToOutDir(books, "books.json");
+  await writeBook({
+    value: books,
+    filename: "books.json",
+  });
   console.info("Fetched wiki books");
   console.info("----------------------------------------");
 
@@ -54,7 +54,10 @@ try {
     const bookDataRes = await api.readBook(book.id);
     const bookData = await bookDataRes.json();
 
-    await writeJsonToOutDir(bookData, `book_${book.slug}.json`);
+    await writeBook({
+      value: bookData,
+      filename: `book_${book.slug}.json`,
+    });
     console.info(`Fetched book: ${book.name}`);
 
     // Books can either have page of chapter type
@@ -68,16 +71,9 @@ try {
         const pagePlainText = await pageResponse.text();
         const sanitizedText = sanitizeText(pagePlainText);
 
-        await writePlaintextToOutDir(
-          sanitizedText,
-          `${bookData.slug}_${bookContent.slug}`
-        );
-
-        pages.push({
-          id: bookContent.id,
-          name: bookContent.name,
-          url: bookContent.url,
-          description: sanitizedText,
+        await writePlaintextToOutDir({
+          value: sanitizedText,
+          filename: `${bookData.slug}_${bookContent.slug}`,
         });
 
         console.info(`\tFetched page: ${bookContent.name}`);
@@ -93,16 +89,9 @@ try {
           const pagePlainText = await pageResponse.text();
           const sanitizedText = sanitizeText(pagePlainText);
 
-          await writePlaintextToOutDir(
-            sanitizedText,
-            `${bookData.slug}_${bookContent.slug}_${page.slug}`
-          );
-
-          pages.push({
-            id: page.id,
-            name: page.name,
-            url: page.url,
-            description: sanitizedText,
+          await writePlaintextToOutDir({
+            value: sanitizedText,
+            filename: `${bookData.slug}_${bookContent.slug}_${page.slug}`,
           });
 
           console.info(`\tFetched page: ${page.name}`);
@@ -112,14 +101,15 @@ try {
       } else {
         throw new Error("Undefined book content type: ", bookContent.type);
       }
+
+      pagesCount += countPagesOfEachBooks;
     }
 
     console.info(`${book.name} has ${countPagesOfEachBooks} pages`);
     console.info("----------------------------------------");
   }
 
-  await writeFinalOutputToOutDir(pages, FINAL_OUTPUT_NAME);
-  console.info(`Total pages in wiki: ${pages.length}`);
+  console.info(`Total pages in wiki: ${pagesCount}`);
 } catch (err) {
   console.error("Error: ", err);
 }

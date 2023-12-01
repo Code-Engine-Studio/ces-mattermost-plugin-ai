@@ -3,11 +3,16 @@
   "version": "0.0.1",
   "type": "module",
   "description": "A collection of scripts",
-  "exports": ["./index.js"],
+  "exports": [
+    "./index.js"
+  ],
   "scripts": {
     "build": "tsc",
-    "dev": "node --env-file=.env --no-warnings=ExperimentalWarning --loader ts-node/esm/transpile-only src/main.ts",
-    "gen": "node --env-file=.env --no-warnings=ExperimentalWarning --loader ts-node/esm/transpile-only src/generate.ts",
+    "dev": "node --env-file=.env --no-warnings=ExperimentalWarning --loader ts-node/esm/transpile-only",
+    "dev:wiki": "npm run dev src/01_wiki.ts",
+    "dev:prepare": "npm run dev src/02_prepare.ts",
+    "dev:embeddings": "npm run dev src/03_embeddings.ts",
+    "dev:qdrant": "npm run dev src/04_qdrant.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "contributors": [
@@ -18,7 +23,9 @@
     }
   ],
   "dependencies": {
+    "@qdrant/qdrant-js": "^1.6.0",
     "node-fetch": "^3.3.2",
+    "openai": "^4.20.1",
     "rimraf": "^5.0.5"
   },
   "devDependencies": {

@@ -45,9 +45,9 @@ export interface Page {
   type: "page";
 }
 
-export interface FinalOutput {
+export interface FinalData {
   id: number;
-  name: string;
+  title: string;
   url: string;
   description: string;
 }

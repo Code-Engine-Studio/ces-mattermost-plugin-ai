@@ -1,44 +1,74 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
-  JSON_OUT_PATH,
-  PLAINTEXT_OUT_PATH,
-  FINAL_OUT_PATH,
+  EMBEDDINGS_FILENAME,
+  EMBEDDINGS_OUT_PATH,
+  FINAL_DATA_FILENAME,
+  FINAL_DATA_OUT_PATH,
+  BOOKS_OUT_PATH,
+  PAGES_OUT_PATH,
 } from "./configs.js";
 
-export const writePlaintextToOutDir = (value: string, name: string) => {
-  let fileName = name;
+type WriteFileInput<T = unknown> = {
+  value: T;
+  filename: string;
+};
 
-  if (!name.endsWith(".txt")) {
-    fileName = fileName.concat(".txt");
+type WriteFileWithPathInput = WriteFileInput & {
+  folderPath: string;
+};
+
+export const writePlaintextToOutDir = ({
+  filename,
+  value,
+}: WriteFileInput<string>) => {
+  let finalFilename = filename;
+
+  if (!finalFilename.endsWith(".txt")) {
+    finalFilename = finalFilename.concat(".txt");
   }
 
-  return writeFile(path.join(PLAINTEXT_OUT_PATH, fileName), value, {
+  return writeFile(path.join(PAGES_OUT_PATH, finalFilename), value, {
     encoding: "utf8",
   });
 };
 
-export const writeJsonToOutDir = (value: any, name: string) =>
-  writeJSonFile(value, name, JSON_OUT_PATH);
-
-export const writeFinalOutputToOutDir = (value: any, name: string) =>
-  writeJSonFile(value, name, FINAL_OUT_PATH);
-
-export const writeJSonFile = (value: any, name: string, folderPath: string) => {
-  let fileName = name;
+export const writeJsonFile = ({
+  value,
+  filename,
+  folderPath,
+}: WriteFileWithPathInput) => {
+  let name = filename;
 
   if (!name.endsWith(".json")) {
-    fileName = fileName.concat(".json");
+    name = name.concat(".json");
   }
 
   return writeFile(
-    path.join(folderPath, fileName),
+    path.join(folderPath, name),
     JSON.stringify(value, null, 2),
     {
       encoding: "utf8",
     }
   );
 };
+
+export const writeBook = ({ filename, value }: WriteFileInput) =>
+  writeJsonFile({ value, filename, folderPath: BOOKS_OUT_PATH });
+
+export const writeFinalData = ({ value }: Omit<WriteFileInput, "filename">) =>
+  writeJsonFile({
+    value,
+    filename: FINAL_DATA_FILENAME,
+    folderPath: FINAL_DATA_OUT_PATH,
+  });
+
+export const writeEmbeddings = ({ value }: Omit<WriteFileInput, "filename">) =>
+  writeJsonFile({
+    value,
+    filename: EMBEDDINGS_FILENAME,
+    folderPath: EMBEDDINGS_OUT_PATH,
+  });
 
 export const sanitizeText = (value: string) =>
   value

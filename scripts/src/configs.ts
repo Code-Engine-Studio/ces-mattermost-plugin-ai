@@ -13,9 +13,20 @@ export const WIKI_CONFIGS = {
 
 // Out paths
 export const OUT_PATH = join(__dirname, "..", "out");
-export const JSON_OUT_PATH = join(OUT_PATH, "json");
-export const PLAINTEXT_OUT_PATH = join(OUT_PATH, "plaintext");
-export const FINAL_OUT_PATH = join(OUT_PATH, "final-output");
+export const BOOKS_OUT_PATH = join(OUT_PATH, "books");
+export const PAGES_OUT_PATH = join(OUT_PATH, "pages");
+export const FINAL_DATA_OUT_PATH = join(OUT_PATH, "final-data");
+export const EMBEDDINGS_OUT_PATH = join(OUT_PATH, "embeddings");
 
-// File names
-export const FINAL_OUTPUT_NAME = "finalOutput";
+// Filenames
+export const FINAL_DATA_FILENAME = "final_data.json";
+export const EMBEDDINGS_FILENAME = "embeddings.json";
+
+// OpenAI
+export const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
+
+// Qdrant configs
+export const QDRANT_CONFIGS = {
+  COLLECTION_NAME: process.env.QDRANT_COLLECTION_NAME || "test_collection",
+  URL: process.env.QDRANT_URL,
+};
