@@ -17,7 +17,6 @@ import (
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/pkg/errors"
-	pb "github.com/qdrant/go-client/qdrant"
 )
 
 const (
@@ -57,7 +56,7 @@ type Plugin struct {
 	streamingContexts      map[string]context.CancelFunc
 	streamingContextsMutex sync.Mutex
 
-	qdrantClient pb.QdrantClient
+	vectorDbClient VectorDbClient
 }
 
 func resolveffmpegPath() string {
@@ -74,11 +73,11 @@ func resolveffmpegPath() string {
 }
 
 func (p *Plugin) OnActivate() error {
-	qdrantClient, err := connectDb()
+	vectorDbClient, err := connectDb()
 	if err != nil {
 		return errors.Wrapf(err, "failed to load Qdrant")
 	}
-	p.qdrantClient = qdrantClient
+	p.vectorDbClient = vectorDbClient
 
 	p.pluginAPI = pluginapi.NewClient(p.API, p.Driver)
 
