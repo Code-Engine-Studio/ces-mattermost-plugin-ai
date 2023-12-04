@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/mattermost/mattermost-plugin-ai/server/ai"
 	pb "github.com/qdrant/go-client/qdrant"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -20,23 +21,33 @@ const (
 	collectionName = "ces-wiki-collection"
 )
 
-func (c *VectorDbClient) SearchPoints(embedding []float32) string {
+func (c *VectorDbClient) SearchPoints(embedding []float32) (ai.WikiContent, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	unfilteredSearchResult, _ := c.PointsClient.Search(ctx, &pb.SearchPoints{
+	unfilteredSearchResult, err := c.PointsClient.Search(ctx, &pb.SearchPoints{
 		CollectionName: collectionName,
 		Vector:         embedding,
 		Limit:          1,
 		// Include all payload and vectors in the search result
 		WithPayload: &pb.WithPayloadSelector{SelectorOptions: &pb.WithPayloadSelector_Enable{Enable: true}},
 	})
+
+	if err != nil {
+		return ai.WikiContent{}, err
+	}
+
+	if len(unfilteredSearchResult.GetResult()) == 0 {
+		return ai.WikiContent{}, nil
+	}
+
 	result := unfilteredSearchResult.GetResult()[0].Payload
 
-	// !TODO: For debug only, should be removed in production
-	fmt.Printf("Found points result: %s", result["description"].GetStringValue())
-
-	return result["description"].GetStringValue()
+	return ai.WikiContent{
+		Title:       result["title"].GetStringValue(),
+		Url:         result["url"].GetStringValue(),
+		Description: result["description"].GetStringValue(),
+	}, nil
 }
 
 func connectDb() (VectorDbClient, error) {

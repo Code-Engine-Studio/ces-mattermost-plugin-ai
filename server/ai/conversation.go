@@ -22,6 +22,12 @@ type Post struct {
 	Message string
 }
 
+type WikiContent struct {
+	Title       string
+	Url         string
+	Description string
+}
+
 type ConversationContext struct {
 	Time             string
 	ServerName       string
@@ -31,7 +37,7 @@ type ConversationContext struct {
 	Team             *model.Team
 	Post             *model.Post
 	PromptParameters map[string]string
-	Wiki             string
+	Wiki             WikiContent
 }
 
 func NewConversationContext(requestingUser *model.User, channel *model.Channel, post *model.Post) ConversationContext {
