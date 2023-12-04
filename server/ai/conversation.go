@@ -6,6 +6,7 @@ import (
 	"time"
 	_ "time/tzdata"
 
+	"github.com/mattermost/mattermost-plugin-ai/server/qdrant"
 	"github.com/mattermost/mattermost/server/public/model"
 )
 
@@ -22,12 +23,6 @@ type Post struct {
 	Message string
 }
 
-type WikiContent struct {
-	Title       string
-	Url         string
-	Description string
-}
-
 type ConversationContext struct {
 	Time             string
 	ServerName       string
@@ -37,7 +32,7 @@ type ConversationContext struct {
 	Team             *model.Team
 	Post             *model.Post
 	PromptParameters map[string]string
-	Wiki             WikiContent
+	Wiki             qdrant.WikiContent
 }
 
 func NewConversationContext(requestingUser *model.User, channel *model.Channel, post *model.Post) ConversationContext {

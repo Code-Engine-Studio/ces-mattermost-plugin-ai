@@ -1,19 +1,22 @@
-package main
+package qdrant
 
 import (
 	"context"
 	"fmt"
 	"time"
 
-	"github.com/mattermost/mattermost-plugin-ai/server/ai"
 	pb "github.com/qdrant/go-client/qdrant"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type VectorDbClient struct {
-	QdrantClient pb.QdrantClient
+type QdrantClients struct {
 	PointsClient pb.PointsClient
+}
+type WikiContent struct {
+	Title       string
+	Url         string
+	Description string
 }
 
 const (
@@ -21,11 +24,11 @@ const (
 	collectionName = "ces-wiki-collection"
 )
 
-func (c *VectorDbClient) SearchPoints(embedding []float32) (ai.WikiContent, error) {
+func (qc *QdrantClients) SearchPoints(embedding []float32) (WikiContent, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	unfilteredSearchResult, err := c.PointsClient.Search(ctx, &pb.SearchPoints{
+	unfilteredSearchResult, err := qc.PointsClient.Search(ctx, &pb.SearchPoints{
 		CollectionName: collectionName,
 		Vector:         embedding,
 		Limit:          1,
@@ -34,23 +37,23 @@ func (c *VectorDbClient) SearchPoints(embedding []float32) (ai.WikiContent, erro
 	})
 
 	if err != nil {
-		return ai.WikiContent{}, err
+		return WikiContent{}, err
 	}
 
 	if len(unfilteredSearchResult.GetResult()) == 0 {
-		return ai.WikiContent{}, nil
+		return WikiContent{}, nil
 	}
 
 	result := unfilteredSearchResult.GetResult()[0].Payload
 
-	return ai.WikiContent{
+	return WikiContent{
 		Title:       result["title"].GetStringValue(),
 		Url:         result["url"].GetStringValue(),
 		Description: result["description"].GetStringValue(),
 	}, nil
 }
 
-func connectDb() (VectorDbClient, error) {
+func ConnectDb() (QdrantClients, error) {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Printf("fatal %+v\n", err)
@@ -79,5 +82,5 @@ func connectDb() (VectorDbClient, error) {
 	// Create points grpc client
 	pointsClient := pb.NewPointsClient(conn)
 
-	return VectorDbClient{QdrantClient: qdrantClient, PointsClient: pointsClient}, nil
+	return QdrantClients{PointsClient: pointsClient}, nil
 }

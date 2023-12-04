@@ -13,7 +13,7 @@ func (p *Plugin) MakeConversationContext(user *model.User, channel *model.Channe
 
 	embedding := p.getLLM().GenerateEmbeddings((context.Post.Message))
 
-	if wikiContent, err := p.vectorDbClient.SearchPoints(embedding); err != nil {
+	if wikiContent, err := p.qdrantClients.SearchPoints(embedding); err != nil {
 		context.Wiki = wikiContent
 	} else {
 		p.pluginAPI.Log.Error("Error while fetching from wiki:", err)
