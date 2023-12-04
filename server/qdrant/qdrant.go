@@ -13,7 +13,7 @@ import (
 type QdrantClients struct {
 	PointsClient pb.PointsClient
 }
-type WikiContent struct {
+type Wiki struct {
 	Title       string
 	Url         string
 	Description string
@@ -24,7 +24,7 @@ const (
 	collectionName = "ces-wiki-collection"
 )
 
-func (qc *QdrantClients) SearchPoints(embedding []float32) (WikiContent, error) {
+func (qc *QdrantClients) SearchPoints(embedding []float32) (Wiki, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
@@ -37,16 +37,16 @@ func (qc *QdrantClients) SearchPoints(embedding []float32) (WikiContent, error) 
 	})
 
 	if err != nil {
-		return WikiContent{}, err
+		return Wiki{}, err
 	}
 
 	if len(unfilteredSearchResult.GetResult()) == 0 {
-		return WikiContent{}, nil
+		return Wiki{}, nil
 	}
 
 	result := unfilteredSearchResult.GetResult()[0].Payload
 
-	return WikiContent{
+	return Wiki{
 		Title:       result["title"].GetStringValue(),
 		Url:         result["url"].GetStringValue(),
 		Description: result["description"].GetStringValue(),

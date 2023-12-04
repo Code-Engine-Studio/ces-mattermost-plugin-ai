@@ -32,7 +32,7 @@ type ConversationContext struct {
 	Team             *model.Team
 	Post             *model.Post
 	PromptParameters map[string]string
-	Wiki             qdrant.WikiContent
+	Wiki             qdrant.Wiki
 }
 
 func NewConversationContext(requestingUser *model.User, channel *model.Channel, post *model.Post) ConversationContext {
