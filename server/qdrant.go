@@ -15,24 +15,31 @@ type VectorDbClient struct {
 	PointsClient pb.PointsClient
 }
 
+const (
+	addr           = "qdrant-db:6334"
+	collectionName = "ces-wiki-collection"
+)
+
 func (c *VectorDbClient) SearchPoints(embedding []float32) string {
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
 
 	unfilteredSearchResult, _ := c.PointsClient.Search(ctx, &pb.SearchPoints{
-		CollectionName: "qdrant",
+		CollectionName: collectionName,
 		Vector:         embedding,
 		Limit:          1,
 		// Include all payload and vectors in the search result
 		WithPayload: &pb.WithPayloadSelector{SelectorOptions: &pb.WithPayloadSelector_Enable{Enable: true}},
 	})
 	result := unfilteredSearchResult.GetResult()[0].Payload
+
+	// !TODO: For debug only, should be removed in production
 	fmt.Printf("Found points result: %s", result["description"].GetStringValue())
+
 	return result["description"].GetStringValue()
 }
 
 func connectDb() (VectorDbClient, error) {
-	// TODO: Use env variable for the connection address
-	addr := "qdrant-db:6334"
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Printf("fatal %+v\n", err)
@@ -40,7 +47,8 @@ func connectDb() (VectorDbClient, error) {
 
 	collections_client := pb.NewCollectionsClient(conn)
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
 
 	qdrantClient := pb.NewQdrantClient(conn)
 	healthCheckResult, err := qdrantClient.HealthCheck(ctx, &pb.HealthCheckRequest{})
