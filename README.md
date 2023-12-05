@@ -13,31 +13,17 @@ This is forked project from the [Original Mattermost AI Plugin](https://github.c
 
 1. From top level of the project
 2. Run `./dev.sh`
-3. Navigate to `https://localhost:8065` with username and password from the terminal when running script at step 2
+3. Seed data and embeddings to the Qdrant database. More details can be found here: [ces-mattermost-ai-embeddings](https://github.com/Code-Engine-Studio/ces-mattermost-ai-embeddings)
+4. Navigate to `https://localhost:8065` with username and password from the terminal when running script at step 2
    ![Run dev script](docs/dev_sh.png)
-4. MM_SERVICESETTINGS_SITEURL=http://localhost:8065 MM_ADMIN_USERNAME=root MM_ADMIN_PASSWORD=super_secret_password make deploy
+5. MM_SERVICESETTINGS_SITEURL=http://localhost:8065 MM_ADMIN_USERNAME=root MM_ADMIN_PASSWORD=super_secret_password make deploy
    ![Make Deploy](docs/make_deploy.png)
-5. Go to `http://localhost:8065/admin_console/plugins/plugin_mattermost-ai` and click `Add AI Service`
-6. Add API Key and Default Modal (gpt-3.5-turbo) and save
+6. Go to `http://localhost:8065/admin_console/plugins/plugin_mattermost-ai` and click `Add AI Service`
+7. Add API Key and Default Modal (gpt-3.5-turbo) and save
    ![Open AI Config](docs/open_ai_config.png)
-7. Chat with `@ai` \
+8. Chat with `@ai` \
    ![AI Chat](docs/ai_chat.png)
-8. To uninstall, run `./clean-dev.sh`
-
-# How to pull data from wiki
-
-1. Change to `scripts` directory
-2. `cp .env.sample .env`
-3. Update `.env` with API Keys from CES Brains
-4. npm install
-5. Run followings command in order
-
--   `npm run dev:wiki`
--   `npm run dev:prepare`
--   `npm run dev:embeddings`
--   `npm run dev:qdrant`
-
-6. Output files should be located in scripts/out
+9. To uninstall, run `./clean-dev.sh`
 
 # How to stay update with the upstream repo
 
