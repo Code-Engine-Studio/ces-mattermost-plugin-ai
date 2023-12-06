@@ -13,11 +13,6 @@ import (
 type QdrantClients struct {
 	pointsClient pb.PointsClient
 }
-type Wiki struct {
-	Title       string
-	Url         string
-	Description string
-}
 
 const (
 	ADDR            = "qdrant-db:6334"
@@ -25,7 +20,7 @@ const (
 	SEARCH_LIMIT    = 3
 )
 
-func (qc *QdrantClients) SearchPoints(embedding []float32) (string, error) {
+func (qc *QdrantClients) SearchWiki(embedding []float32) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
@@ -50,7 +45,6 @@ func (qc *QdrantClients) SearchPoints(embedding []float32) (string, error) {
 			v.Payload["url"].GetStringValue())
 	}
 
-	fmt.Println("Wikiii: ", result)
 	return result, nil
 }
 
