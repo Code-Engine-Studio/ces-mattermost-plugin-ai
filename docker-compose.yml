@@ -38,6 +38,7 @@ services:
       POSTGRES_DB: "mattermost_test"
   qdrant-db:
     image: qdrant/qdrant:latest
+    restart: "unless-stopped"
     ports:
       - 6333:6333
       - 6334:6334

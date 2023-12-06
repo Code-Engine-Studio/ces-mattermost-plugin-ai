@@ -13,6 +13,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-ai/server/ai/anthropic"
 	"github.com/mattermost/mattermost-plugin-ai/server/ai/asksage"
 	"github.com/mattermost/mattermost-plugin-ai/server/ai/openai"
+	"github.com/mattermost/mattermost-plugin-ai/server/qdrant"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
@@ -56,7 +57,7 @@ type Plugin struct {
 	streamingContexts      map[string]context.CancelFunc
 	streamingContextsMutex sync.Mutex
 
-	vectorDbClient VectorDbClient
+	qdrantClients qdrant.QdrantClients
 }
 
 func resolveffmpegPath() string {
@@ -73,11 +74,11 @@ func resolveffmpegPath() string {
 }
 
 func (p *Plugin) OnActivate() error {
-	vectorDbClient, err := connectDb()
+	qdrantClients, err := qdrant.ConnectDb()
 	if err != nil {
 		return errors.Wrapf(err, "failed to load Qdrant")
 	}
-	p.vectorDbClient = vectorDbClient
+	p.qdrantClients = qdrantClients
 
 	p.pluginAPI = pluginapi.NewClient(p.API, p.Driver)
 

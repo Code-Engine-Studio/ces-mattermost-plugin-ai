@@ -1,4 +1,4 @@
-package main
+package qdrant
 
 import (
 	"context"
@@ -10,29 +10,50 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type VectorDbClient struct {
-	QdrantClient pb.QdrantClient
+type QdrantClients struct {
 	PointsClient pb.PointsClient
 }
+type Wiki struct {
+	Title       string
+	Url         string
+	Description string
+}
 
-func (c *VectorDbClient) SearchPoints(embedding []float32) string {
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+const (
+	addr           = "qdrant-db:6334"
+	collectionName = "ces-wiki-collection"
+)
 
-	unfilteredSearchResult, _ := c.PointsClient.Search(ctx, &pb.SearchPoints{
-		CollectionName: "qdrant",
+func (qc *QdrantClients) SearchPoints(embedding []float32) (Wiki, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	unfilteredSearchResult, err := qc.PointsClient.Search(ctx, &pb.SearchPoints{
+		CollectionName: collectionName,
 		Vector:         embedding,
 		Limit:          1,
 		// Include all payload and vectors in the search result
 		WithPayload: &pb.WithPayloadSelector{SelectorOptions: &pb.WithPayloadSelector_Enable{Enable: true}},
 	})
+
+	if err != nil {
+		return Wiki{}, err
+	}
+
+	if len(unfilteredSearchResult.GetResult()) == 0 {
+		return Wiki{}, nil
+	}
+
 	result := unfilteredSearchResult.GetResult()[0].Payload
-	fmt.Printf("Found points result: %s", result["description"].GetStringValue())
-	return result["description"].GetStringValue()
+
+	return Wiki{
+		Title:       result["title"].GetStringValue(),
+		Url:         result["url"].GetStringValue(),
+		Description: result["description"].GetStringValue(),
+	}, nil
 }
 
-func connectDb() (VectorDbClient, error) {
-	// TODO: Use env variable for the connection address
-	addr := "qdrant-db:6334"
+func ConnectDb() (QdrantClients, error) {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Printf("fatal %+v\n", err)
@@ -40,7 +61,8 @@ func connectDb() (VectorDbClient, error) {
 
 	collections_client := pb.NewCollectionsClient(conn)
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
 
 	qdrantClient := pb.NewQdrantClient(conn)
 	healthCheckResult, err := qdrantClient.HealthCheck(ctx, &pb.HealthCheckRequest{})
@@ -60,5 +82,5 @@ func connectDb() (VectorDbClient, error) {
 	// Create points grpc client
 	pointsClient := pb.NewPointsClient(conn)
 
-	return VectorDbClient{QdrantClient: qdrantClient, PointsClient: pointsClient}, nil
+	return QdrantClients{PointsClient: pointsClient}, nil
 }

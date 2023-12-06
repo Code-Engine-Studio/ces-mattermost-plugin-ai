@@ -12,7 +12,12 @@ func (p *Plugin) MakeConversationContext(user *model.User, channel *model.Channe
 	}
 
 	embedding := p.getLLM().GenerateEmbeddings((context.Post.Message))
-	context.Wiki = p.vectorDbClient.SearchPoints(embedding)
+
+	if wiki, err := p.qdrantClients.SearchPoints(embedding); err != nil {
+		p.pluginAPI.Log.Error("Error while fetching from wiki:", err)
+	} else {
+		context.Wiki = wiki
+	}
 
 	if license := p.pluginAPI.System.GetLicense(); license != nil && license.Customer != nil {
 		context.CompanyName = license.Customer.Company
