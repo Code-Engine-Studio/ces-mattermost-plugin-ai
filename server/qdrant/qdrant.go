@@ -11,7 +11,7 @@ import (
 )
 
 type QdrantClients struct {
-	PointsClient pb.PointsClient
+	pointsClient pb.PointsClient
 }
 type Wiki struct {
 	Title       string
@@ -20,41 +20,42 @@ type Wiki struct {
 }
 
 const (
-	addr           = "qdrant-db:6334"
-	collectionName = "ces-wiki-collection"
+	ADDR            = "qdrant-db:6334"
+	COLLECTION_NAME = "ces-wiki-collection"
+	SEARCH_LIMIT    = 3
 )
 
-func (qc *QdrantClients) SearchPoints(embedding []float32) (Wiki, error) {
+func (qc *QdrantClients) SearchPoints(embedding []float32) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	unfilteredSearchResult, err := qc.PointsClient.Search(ctx, &pb.SearchPoints{
-		CollectionName: collectionName,
+	searchResult, err := qc.pointsClient.Search(ctx, &pb.SearchPoints{
+		CollectionName: COLLECTION_NAME,
 		Vector:         embedding,
-		Limit:          1,
+		Limit:          SEARCH_LIMIT,
 		// Include all payload and vectors in the search result
 		WithPayload: &pb.WithPayloadSelector{SelectorOptions: &pb.WithPayloadSelector_Enable{Enable: true}},
 	})
 
 	if err != nil {
-		return Wiki{}, err
+		return "", err
 	}
 
-	if len(unfilteredSearchResult.GetResult()) == 0 {
-		return Wiki{}, nil
+	result := ""
+
+	for _, v := range searchResult.GetResult() {
+		result += fmt.Sprintf("\n---------------\nTitle: %s\nContent: %s\nUrl: %s\n--------------\n",
+			v.Payload["title"].GetStringValue(),
+			v.Payload["description"].GetStringValue(),
+			v.Payload["url"].GetStringValue())
 	}
 
-	result := unfilteredSearchResult.GetResult()[0].Payload
-
-	return Wiki{
-		Title:       result["title"].GetStringValue(),
-		Url:         result["url"].GetStringValue(),
-		Description: result["description"].GetStringValue(),
-	}, nil
+	fmt.Println("Wikiii: ", result)
+	return result, nil
 }
 
 func ConnectDb() (QdrantClients, error) {
-	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(ADDR, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Printf("fatal %+v\n", err)
 	}
@@ -82,5 +83,5 @@ func ConnectDb() (QdrantClients, error) {
 	// Create points grpc client
 	pointsClient := pb.NewPointsClient(conn)
 
-	return QdrantClients{PointsClient: pointsClient}, nil
+	return QdrantClients{pointsClient}, nil
 }
