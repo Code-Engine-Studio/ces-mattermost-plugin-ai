@@ -142,7 +142,7 @@ const UnreadsSumarize = (props: Props) => {
             <Divider/>
             <DropdownMenuItemInfo>
                 <LightbulbOutlineIconStyled/>
-                {'AI Assistant posts responses in the right panel which will only be visible to you.'}
+                {'Mai posts responses in the right panel which will only be visible to you.'}
             </DropdownMenuItemInfo>
         </AskAIButton>
     );
