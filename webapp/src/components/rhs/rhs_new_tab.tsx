@@ -105,8 +105,8 @@ const RHSNewTab = ({botChannelId, selectPost, setCurrentTab}: Props) => {
     return (
         <NewQuestion>
             <RHSImage/>
-            <QuestionTitle>{'Ask AI Assistant anything'}</QuestionTitle>
-            <QuestionDescription>{'The AI Assistant is here to help. Choose from the prompts below or write your own.'}</QuestionDescription>
+            <QuestionTitle>{'Ask Mai anything'}</QuestionTitle>
+            <QuestionDescription>{'The Mai is here to help. Choose from the prompts below or write your own.'}</QuestionDescription>
             <QuestionOptions>
                 <OptionButton onClick={addBrainstormingIdeas}><LightbulbOutlineIcon/>{'Brainstorm ideas'}</OptionButton>
                 <OptionButton onClick={addMeetingAgenda}><FormatListNumberedIcon/>{'Meeting agenda'}</OptionButton>
@@ -115,7 +115,7 @@ const RHSNewTab = ({botChannelId, selectPost, setCurrentTab}: Props) => {
             </QuestionOptions>
             <CreatePostContainer>
                 <CreatePost
-                    placeholder={'Ask AI Assistant anything...'}
+                    placeholder={'Ask Mai anything...'}
                     onSubmit={async (p: any) => {
                         p.channel_id = botChannelId || '';
                         p.props = {};
