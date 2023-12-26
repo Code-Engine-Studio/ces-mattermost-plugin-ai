@@ -9,6 +9,10 @@ import aiIcon from '../../assets/bot_icon.png';
 
 import {manifest} from '@/manifest';
 
+import IconAI from './components/assets/icon_ai';
+
+import RHSControlPanel from './components/rhs_control_panel';
+
 import {LLMBotPost} from './components/llmbot_post';
 import PostMenu from './components/post_menu';
 import IconThreadSummarization from './components/assets/icon_thread_summarization';
@@ -137,6 +141,16 @@ export default class Plugin {
         if (registry.registerNewMessagesSeparatorActionComponent) {
             registry.registerNewMessagesSeparatorActionComponent(UnreadsSumarize);
         }
+        // Mattermost AI Plugin Control Panel
+        const {toggleRHSPlugin} = registry.registerRightHandSidebarComponent(
+          RHSControlPanel,
+					<div>MAI</div>);
+
+				registry.registerChannelHeaderButtonAction(
+					<IconAI/>,
+					() => store.dispatch(toggleRHSPlugin),
+					'Support MAI with the knowledge of your so she can share them to the other',
+				);
     }
 }
 
