@@ -1,16 +1,7 @@
-// import {connect} from 'react-redux';
-
-// import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
-
-// import {isEnabled} from 'selectors';
+import {connect} from 'react-redux';
 
 import RHSView from './rhs_view';
 
-// const mapStateToProps = (state) => ({
-//     enabled: isEnabled(state),
-//     team: getCurrentTeam(state),
-// });
+const mapStateToProps = (state: any) => state;
 
-// export default connect(mapStateToProps)(RHSView);
-
-export default RHSView;
+export default connect(mapStateToProps)(RHSView);

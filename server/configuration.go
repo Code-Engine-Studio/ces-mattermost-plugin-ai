@@ -43,6 +43,12 @@ type Config struct {
 // copy appropriate for your types.
 type configuration struct {
 	Config `json:"config"`
+
+	// A deplay in seconds that is applied to Slash Command responses, Post Actions responses and Interactive Dialog responses.
+	// It's useful for testing.
+	IntegrationRequestDelay int
+
+	disabled bool
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if

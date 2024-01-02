@@ -7,11 +7,11 @@ import {GlobalState} from '@mattermost/types/lib/store';
 //@ts-ignore it exists
 import aiIcon from '../../assets/bot_icon.png';
 
-import {manifest} from '@/manifest';
-
 import IconAI from './components/assets/icon_ai';
 
 import RHSControlPanel from './components/rhs_control_panel';
+
+import Hooks from './components/lsh_component';
 
 import {LLMBotPost} from './components/llmbot_post';
 import PostMenu from './components/post_menu';
@@ -19,27 +19,34 @@ import IconThreadSummarization from './components/assets/icon_thread_summarizati
 import IconReactForMe from './components/assets/icon_react_for_me';
 import RHS from './components/rhs/rhs';
 import Config from './components/config/config';
-import {doReaction, doSummarize, doTranscribe, getAIDirectChannel} from './client';
+import {
+    doReaction,
+    doSummarize,
+    doTranscribe,
+    getAIDirectChannel,
+} from './client';
 import {setOpenRHSAction} from './redux_actions';
 import {BotUsername} from './constants';
 import PostEventListener from './websocket';
 import {setupRedux} from './redux';
 import UnreadsSumarize from './components/unreads_summarize';
 
-type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>
+import {manifest} from '@/manifest';
+
+type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>;
 
 const StreamingPostWebsocketEvent = 'custom_mattermost-ai_postupdate';
 
 const IconAIContainer = styled.img`
-	border-radius: 50%;
-    width: 24px;
-    height: 24px;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
 `;
 
 const RHSTitleContainer = styled.span`
-    display: flex;
-	gap: 8px;
-    align-items: center;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 `;
 
 const RHSTitle = () => {
@@ -62,24 +69,23 @@ export default class Plugin {
         if ((window as any).Components.CreatePost) {
             rhs = registry.registerRightHandSidebarComponent(RHS, RHSTitle);
             setOpenRHSAction(rhs.showRHSPlugin);
-
-            registry.registerReducer((state = {}, action: any) => {
-                switch (action.type) {
-                case 'SET_AI_BOT_CHANNEL':
-                    return {
-                        ...state,
-                        botChannelId: action.botChannelId,
-                    };
-                case 'SELECT_AI_POST':
-                    return {
-                        ...state,
-                        selectedPostId: action.postId,
-                    };
-                default:
-                    return state;
-                }
-            });
         }
+        registry.registerReducer((state = {}, action: any) => {
+            switch (action.type) {
+            case 'SET_AI_BOT_CHANNEL':
+                return {
+                    ...state,
+                    botChannelId: action.botChannelId,
+                };
+            case 'SELECT_AI_POST':
+                return {
+                    ...state,
+                    selectedPostId: action.postId,
+                };
+            default:
+                return state;
+            }
+        });
 
         let currentUserId = store.getState().entities.users.currentUserId;
         if (currentUserId) {
@@ -97,67 +103,109 @@ export default class Plugin {
                         store.dispatch({type: 'SET_AI_BOT_CHANNEL', botChannelId} as any);
                     });
                 } else {
-                    store.dispatch({type: 'SET_AI_BOT_CHANNEL', botChannelId: ''} as any);
+                    store.dispatch({
+                        type: 'SET_AI_BOT_CHANNEL',
+                        botChannelId: '',
+                    } as any);
                 }
             }
         });
 
-        registry.registerWebSocketEventHandler(StreamingPostWebsocketEvent, this.postEventListener.handlePostUpdateWebsockets);
+        registry.registerWebSocketEventHandler(
+            StreamingPostWebsocketEvent,
+            this.postEventListener.handlePostUpdateWebsockets,
+        );
         const LLMBotPostWithWebsockets = (props: any) => {
             return (
                 <LLMBotPost
                     {...props}
                     websocketRegister={this.postEventListener.registerPostUpdateListener}
-                    websocketUnregister={this.postEventListener.unregisterPostUpdateListener}
+                    websocketUnregister={
+                        this.postEventListener.unregisterPostUpdateListener
+                    }
                 />
-            )
-            ;
+            );
         };
 
-        registry.registerPostTypeComponent('custom_llmbot', LLMBotPostWithWebsockets);
+        registry.registerPostTypeComponent(
+            'custom_llmbot',
+            LLMBotPostWithWebsockets,
+        );
         if (registry.registerPostActionComponent) {
             registry.registerPostActionComponent(PostMenu);
         } else {
-            registry.registerPostDropdownMenuAction(<><span className='icon'><IconThreadSummarization/></span>{'Summarize Thread'}</>, (postId: string) => {
-                const state = store.getState();
-                const team = state.entities.teams.teams[state.entities.teams.currentTeamId];
-                window.WebappUtils.browserHistory.push('/' + team.name + '/messages/@' + BotUsername);
-                doSummarize(postId);
-                if (rhs) {
-                    store.dispatch(rhs.showRHSPlugin);
-                }
-            });
-            registry.registerPostDropdownMenuAction(<><span className='icon'><IconThreadSummarization/></span>{'Summarize Meeting Audio'}</>, doTranscribe);
-            registry.registerPostDropdownMenuAction(<><span className='icon'><IconReactForMe/></span>{'React for me'}</>, doReaction);
+            registry.registerPostDropdownMenuAction(
+                <>
+                    <span className='icon'>
+                        <IconThreadSummarization/>
+                    </span>
+                    {'Summarize Thread'}
+                </>,
+                (postId: string) => {
+                    const state = store.getState();
+                    const team =
+            state.entities.teams.teams[state.entities.teams.currentTeamId];
+                    window.WebappUtils.browserHistory.push(
+                        '/' + team.name + '/messages/@' + BotUsername,
+                    );
+                    doSummarize(postId);
+                    if (rhs) {
+                        store.dispatch(rhs.showRHSPlugin);
+                    }
+                },
+            );
+            registry.registerPostDropdownMenuAction(
+                <>
+                    <span className='icon'>
+                        <IconThreadSummarization/>
+                    </span>
+                    {'Summarize Meeting Audio'}
+                </>,
+                doTranscribe,
+            );
+            registry.registerPostDropdownMenuAction(
+                <>
+                    <span className='icon'>
+                        <IconReactForMe/>
+                    </span>
+                    {'React for me'}
+                </>,
+                doReaction,
+            );
         }
 
         registry.registerAdminConsoleCustomSetting('Config', Config);
         if (rhs) {
-            registry.registerChannelHeaderButtonAction(<IconAIContainer src={aiIcon}/>, () => {
-                store.dispatch(rhs.toggleRHSPlugin);
-            });
+            registry.registerChannelHeaderButtonAction(
+                <IconAIContainer src={aiIcon}/>,
+                () => {
+                    store.dispatch(rhs.toggleRHSPlugin);
+                },
+            );
         }
 
         if (registry.registerNewMessagesSeparatorActionComponent) {
             registry.registerNewMessagesSeparatorActionComponent(UnreadsSumarize);
         }
-        // Mattermost AI Plugin Control Panel
-        const {toggleRHSPlugin} = registry.registerRightHandSidebarComponent(
-          RHSControlPanel,
-					<div>MAI</div>);
 
-				registry.registerChannelHeaderButtonAction(
-					<IconAI/>,
-					() => store.dispatch(toggleRHSPlugin),
-					'Support MAI with the knowledge of your so she can share them to the other',
-				);
+        const {showRHSPlugin, hideRHSPlugin} = registry.registerRightHandSidebarComponent(
+            RHSControlPanel,
+            <div>MAI</div>,
+        );
+
+        registry.registerLeftSidebarHeaderComponent(() => (
+            <Hooks
+                onSelectPluginChannelHandler={() => store.dispatch(showRHSPlugin)}
+                onLeavePluginChannelHandler={() => store.dispatch(hideRHSPlugin)}
+            />
+        ));
     }
 }
 
 declare global {
     interface Window {
-        registerPlugin(pluginId: string, plugin: Plugin): void
-        WebappUtils: any
+        registerPlugin(pluginId: string, plugin: Plugin): void;
+        WebappUtils: any;
     }
 }
 
