@@ -9,7 +9,6 @@ const Hooks = (props) => {
     // eslint-disable-next-line react/prop-types
     const {entities: {channels: {currentChannelId}}, pluginChannelId, onSelectPluginChannelHandler, onLeavePluginChannelHandler} = props;
     useEffect(() => {
-				console.log(currentChannelId, pluginChannelId)
         if (currentChannelId !== pluginChannelId) {
             return onLeavePluginChannelHandler();
         }

@@ -1,11 +1,13 @@
 /* eslint-disable react/jsx-no-literals */
 /* eslint-disable import/no-unresolved */
-/* eslint-disable @typescript-eslint/indent */
-/* eslint-disable react/jsx-indent */
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
-import { createPost } from "../../client";
+import {createPost} from '../../client';
+
+import {BotUsername} from '../../constants';
+
+import {stateProps} from './index';
 
 const QuestionsList = styled.ul`
   list-style-type: none;
@@ -29,25 +31,27 @@ const QuestionButton = styled.button`
   }
 `;
 
-const RHSView = (props) => {
+const RHSView = (props: stateProps) => {
   const {
     entities: {
-      channels: { currentChannelId },
-      users: { currentUserId },
+      channels: {currentChannelId},
+      users: {currentUserId},
     },
+    pluginChannelId,
   } = props;
   const questions = [
-    "Who are you?",
-    "Give me some training resources and accounts",
+    'Who are you?',
+    'Give me some training resources and accounts',
     "What is your company's mission and vision?",
   ];
 
   const handleCopyToClipboard = (question: string) => {
     const time = new Date().getTime();
+    const isDirectMessage = pluginChannelId === currentChannelId;
     const newPost = {
       file_ids: [],
-      message: question,
-      props: { disable_group_highlight: true },
+      message: isDirectMessage ? question : `@${BotUsername} ${question}`,
+      props: {disable_group_highlight: true},
       metadata: {},
       channel_id: currentChannelId,
       pending_post_id: `${currentUserId}:${time}`,
@@ -60,20 +64,23 @@ const RHSView = (props) => {
   };
 
   return (
-    <div className="focalboard-body">
-      <div className="RHSChannelBoards">
-        <div className="rhs-boards-header">
-          <span className="linked-boards">Mai Questions</span>
-          <button type="button" className="Button emphasis--primary">
-            <i className="CompassIcon icon-plus AddIcon" />
+    <div className='focalboard-body'>
+      <div className='RHSChannelBoards'>
+        <div className='rhs-boards-header'>
+          <span className='linked-boards'>Ask Mai any questions below</span>
+          <button
+            type='button'
+            className='Button emphasis--primary'
+          >
+            <i className='CompassIcon icon-plus AddIcon'/>
             <span>Add</span>
           </button>
         </div>
-        <QuestionsList className="rhs-boards-list">
+        <QuestionsList className='rhs-boards-list'>
           {questions.map((question, index) => (
             <li key={`mai-question-${index}`}>
               <QuestionButton
-                type="button"
+                type='button'
                 onClick={() => handleCopyToClipboard(question)}
               >
                 {question}
