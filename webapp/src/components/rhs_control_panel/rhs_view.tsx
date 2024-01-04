@@ -5,6 +5,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { createPost } from "../../client";
+
 const QuestionsList = styled.ul`
   list-style-type: none;
   padding-left: 0;
@@ -27,7 +29,13 @@ const QuestionButton = styled.button`
   }
 `;
 
-const RHSView = () => {
+const RHSView = (props) => {
+  const {
+    entities: {
+      channels: { currentChannelId },
+      users: { currentUserId },
+    },
+  } = props;
   const questions = [
     "Who are you?",
     "Give me some training resources and accounts",
@@ -35,7 +43,20 @@ const RHSView = () => {
   ];
 
   const handleCopyToClipboard = (question: string) => {
-    navigator.clipboard.writeText(question);
+    const time = new Date().getTime();
+    const newPost = {
+      file_ids: [],
+      message: question,
+      props: { disable_group_highlight: true },
+      metadata: {},
+      channel_id: currentChannelId,
+      pending_post_id: `${currentUserId}:${time}`,
+      user_id: currentUserId,
+      create_at: 0,
+      update_at: time,
+      reply_count: 0,
+    };
+    createPost(newPost);
   };
 
   return (
@@ -56,7 +77,6 @@ const RHSView = () => {
                 onClick={() => handleCopyToClipboard(question)}
               >
                 {question}
-                <i className="CompassIcon icon-dots-horizontal OptionsIcon" />
               </QuestionButton>
             </li>
           ))}

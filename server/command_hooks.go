@@ -46,27 +46,16 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 }
 
 func (p *Plugin) executeCommandMentions(args *model.CommandArgs) *model.CommandResponse {
-	message := "The command `" + args.Command + "` contains the following different mentions.\n"
-	message += "### Mentions to users in the team\n"
-	if args.UserMentions == nil {
-		message += "_There are no mentions to users in the team in your command_.\n"
-	} else {
-		message += "| User name | ID |\n"
-		message += "|-----------|----|\n"
-		for name, id := range args.UserMentions {
-			message += fmt.Sprintf("|@%s|%s|\n", name, id)
-		}
+	questions := []string{
+		"Who are you?\n",
+		"Give me some training resources and accounts\n",
+		"What is your company's mission and vision?\n",
 	}
-
-	message += "\n### Mentions to public channels\n"
-	if args.ChannelMentions == nil {
-		message += "_There are no mentions to public channels in your command_.\n"
-	} else {
-		message += "| Channel name | ID |\n"
-		message += "|--------------|----|\n"
-		for name, id := range args.ChannelMentions {
-			message += fmt.Sprintf("|~%s|%s|\n", name, id)
-		}
+	message := "### Example questions to ask MAI\n"
+	message += "| No | Question |\n"
+	message += "|----------------------------------------------------------------|\n"
+	for index, question := range questions {
+		message += fmt.Sprintf("|No.%d| %s |\n", index, question)
 	}
 
 	post := &model.Post{

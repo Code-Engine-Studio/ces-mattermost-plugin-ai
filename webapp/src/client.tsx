@@ -127,7 +127,7 @@ export async function viewMyChannel(channelID: string) {
 }
 
 export async function getAIDirectChannel(currentUserId: string) {
-    const botUser = await Client4.getUserByUsername('ai');
+    const botUser = await Client4.getUserByUsername('mai');
     const dm = await Client4.createDirectChannel([currentUserId, botUser.id]);
     return dm.id;
 }
