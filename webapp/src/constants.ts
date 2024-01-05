@@ -3,3 +3,5 @@
 
 export const OVERLAY_DELAY = 400;
 export const BotUsername = 'mai';
+
+export const BotDisplayName = 'Mai';

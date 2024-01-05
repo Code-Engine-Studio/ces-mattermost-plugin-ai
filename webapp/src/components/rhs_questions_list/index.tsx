@@ -5,7 +5,7 @@ import { getPluginChannelId } from '../../selectors';
 
 import RHSView from './rhs_view';
 
-export type stateProps = {
+export type StateProps = {
   pluginChannelId: string;
   entities: {
     users: {
@@ -23,7 +23,7 @@ export type stateProps = {
   };
 }
 
-const mapStateToProps = (state: stateProps) => ({
+const mapStateToProps = (state: StateProps) => ({
   entities: state.entities,
   pluginChannelId: getPluginChannelId(state),
 });

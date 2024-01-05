@@ -26,7 +26,7 @@ import {
   getAIDirectChannel,
 } from "./client";
 import { setOpenRHSAction } from "./redux_actions";
-import { BotUsername } from "./constants";
+import { BotUsername, BotDisplayName } from "./constants";
 import PostEventListener from "./websocket";
 import { setupRedux } from "./redux";
 import UnreadsSumarize from "./components/unreads_summarize";
@@ -53,7 +53,7 @@ const RHSTitle = () => {
   return (
     <RHSTitleContainer>
       <IconAIContainer src={aiIcon} />
-      {"Mai"}
+      {BotDisplayName}
     </RHSTitleContainer>
   );
 };
@@ -191,7 +191,7 @@ export default class Plugin {
     const { showRHSPlugin, hideRHSPlugin, toggleRHSPlugin } =
       registry.registerRightHandSidebarComponent(
         RHSQuestionsList,
-        <div>MAI</div>
+        <div>{BotUsername.toLocaleUpperCase()}</div>
       );
 
     registry.registerChannelHeaderButtonAction(

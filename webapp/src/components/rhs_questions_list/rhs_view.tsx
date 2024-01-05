@@ -7,14 +7,14 @@
 /* eslint-disable @typescript-eslint/indent */
 /* eslint-disable react/jsx-indent-props */
 /* eslint-disable react/jsx-indent */
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
-import { createPost } from "../../client";
+import { createPost } from '../../client';
 
-import { BotUsername } from "../../constants";
+import { BotUsername } from '../../constants';
 
-import { stateProps } from "./index";
+import { StateProps } from './index';
 
 const QuestionsList = styled.ul`
   list-style-type: none;
@@ -58,17 +58,17 @@ const ButtonsContainer = styled.div`
   gap: 5px;
 `;
 
-const defaultQuestions = [
-  "Who are you?",
-  "Give me some training resources and accounts",
+const DEFAULT_QUESTIONS = [
+  'Who are you?',
+  'Give me some training resources and accounts',
   "What is your company's mission and vision?",
 ];
 
-const RHSView = (props: stateProps) => {
+const RHSView = (props: StateProps) => {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [questions, setQuestions] = useState<string[]>(defaultQuestions);
+  const [questions, setQuestions] = useState<string[]>(DEFAULT_QUESTIONS);
   const [questionInputs, setQuestionInputs] =
-    useState<string[]>(defaultQuestions);
+    useState<string[]>(DEFAULT_QUESTIONS);
 
   const {
     entities: {
@@ -78,8 +78,8 @@ const RHSView = (props: stateProps) => {
     pluginChannelId,
   } = props;
 
-  const { roles = "" } = profiles[currentUserId];
-  const isAdmin = roles.includes("system_admin");
+  const { roles = '' } = profiles[currentUserId];
+  const isAdmin = roles.includes('system_admin');
 
   const handleClickEditButton = () => {
     setQuestionInputs(questions);
@@ -87,7 +87,7 @@ const RHSView = (props: stateProps) => {
   };
 
   const handleClickSaveButton = () => {
-    const newQuestions = questionInputs.filter((question) => question);
+    const newQuestions = questionInputs.filter(question => question);
     setQuestions(newQuestions);
     setIsEditMode(false);
   };
@@ -107,7 +107,7 @@ const RHSView = (props: stateProps) => {
   };
 
   const handleAddQuestion = () => {
-    const newQuestions = [...questionInputs, ""];
+    const newQuestions = [...questionInputs, ''];
     setQuestionInputs(newQuestions);
   };
 
@@ -180,7 +180,7 @@ const RHSView = (props: stateProps) => {
                 <QuestionInput
                   type="text"
                   defaultValue={question}
-                  onBlur={(e) => handleUpdateQuestion(index, e.target.value)}
+                  onBlur={e => handleUpdateQuestion(index, e.target.value)}
                 />
               </li>
             ))}

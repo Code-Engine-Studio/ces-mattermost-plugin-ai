@@ -110,10 +110,6 @@ func (p *Plugin) OnActivate() error {
 
 	p.streamingContexts = map[string]context.CancelFunc{}
 
-	if err := p.registerCommands(); err != nil {
-		return errors.Wrap(err, "failed to register commands")
-	}
-
 	return nil
 }
 
