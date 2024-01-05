@@ -1,7 +1,6 @@
-import { manifest } from './manifest';
+import { manifest } from "./manifest";
 
-console.log(manifest)
+const getPluginState = (state: any) => state["plugins-" + manifest.id] || {};
 
-const getPluginState = (state: any) => state['plugins-' + manifest.id] || {};
-
-export const getPluginChannelId = (state: any) => { console.log(state); return getPluginState(state).botChannelId; }
+export const getPluginChannelId = (state: any) =>
+  getPluginState(state).botChannelId;
