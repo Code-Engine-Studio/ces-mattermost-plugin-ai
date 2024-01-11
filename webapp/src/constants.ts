@@ -2,4 +2,6 @@
 // See LICENSE.txt for license information.
 
 export const OVERLAY_DELAY = 400;
-export const BotUsername = 'ai';
+export const BotUsername = 'mai';
+
+export const BotDisplayName = 'Mai';

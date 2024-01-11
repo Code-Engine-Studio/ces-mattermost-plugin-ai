@@ -152,7 +152,7 @@
       ],
       "indent": [
          2,
-         4,
+         2,
          {
             "SwitchCase": 0
          }
@@ -479,11 +479,11 @@
       "react/jsx-handler-names": 0,
       "react/jsx-indent": [
          2,
-         4
+         2
       ],
       "react/jsx-indent-props": [
          2,
-         4
+         2
       ],
       "react/jsx-key": 2,
       "react/jsx-max-props-per-line": [
@@ -645,7 +645,7 @@
             "@typescript-eslint/explicit-module-boundary-types": 0,
             "@typescript-eslint/indent": [
                2,
-               4,
+               2,
                {
                   "SwitchCase": 0
                }

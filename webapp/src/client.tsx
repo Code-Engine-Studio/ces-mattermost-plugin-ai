@@ -1,4 +1,5 @@
 import {Client4 as Client4Class, ClientError} from '@mattermost/client';
+import { BotUsername } from './constants';
 
 import {manifest} from './manifest';
 
@@ -127,7 +128,7 @@ export async function viewMyChannel(channelID: string) {
 }
 
 export async function getAIDirectChannel(currentUserId: string) {
-    const botUser = await Client4.getUserByUsername('ai');
+    const botUser = await Client4.getUserByUsername(BotUsername);
     const dm = await Client4.createDirectChannel([currentUserId, botUser.id]);
     return dm.id;
 }

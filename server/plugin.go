@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	BotUsername = "ai"
+	BotUsername = "mai"
 
 	CallsRecordingPostType = "custom_calls_recording"
 	CallsBotUsername       = "calls"
