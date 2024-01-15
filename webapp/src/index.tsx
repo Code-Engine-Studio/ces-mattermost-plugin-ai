@@ -8,6 +8,7 @@ import { GlobalState } from "@mattermost/types/lib/store";
 import aiIcon from "../../assets/bot_icon.png";
 
 import IconAI from "./components/assets/icon_ai";
+import Chatbot from "./components/assets/chatbot.svg";
 
 import RHSQuestionsList from "./components/rhs_questions_list";
 
@@ -195,7 +196,11 @@ export default class Plugin {
       );
 
     registry.registerChannelHeaderButtonAction(
-      <IconAI />,
+      <img
+        width={19}
+        height={19}
+        src={Chatbot}
+      />,
       () => store.dispatch(toggleRHSPlugin),
       "Don't know what to ask Mai? Let her help you"
     );
