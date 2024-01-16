@@ -12,8 +12,6 @@ import styled from 'styled-components';
 
 import { createPost } from '../../client';
 
-import { BotUsername } from '../../constants';
-
 import { StateProps } from './index';
 
 const QuestionsList = styled.ul`
@@ -72,7 +70,6 @@ const RHSView = (props: StateProps) => {
 
   const {
     entities: {
-      channels: { currentChannelId },
       users: { currentUserId, profiles },
     },
     pluginChannelId,
@@ -113,13 +110,12 @@ const RHSView = (props: StateProps) => {
 
   const handleClickQuestion = (question: string) => {
     const time = new Date().getTime();
-    const isDirectMessage = pluginChannelId === currentChannelId;
     const newPost = {
       file_ids: [],
-      message: isDirectMessage ? question : `@${BotUsername} ${question}`,
+      message: question,
       props: { disable_group_highlight: true },
       metadata: {},
-      channel_id: currentChannelId,
+      channel_id: pluginChannelId,
       pending_post_id: `${currentUserId}:${time}`,
       user_id: currentUserId,
       create_at: 0,
