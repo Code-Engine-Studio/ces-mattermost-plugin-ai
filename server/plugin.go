@@ -116,7 +116,7 @@ func (p *Plugin) OnActivate() error {
 func (p *Plugin) getLLM() ai.LanguageModel {
 	cfg := p.getConfiguration()
 	var llm ai.LanguageModel
-	var llmService ServiceConfig
+	var llmService ai.ServiceConfig
 	for _, service := range cfg.Services {
 		if service.Name == cfg.LLMGenerator {
 			llmService = service
@@ -125,25 +125,27 @@ func (p *Plugin) getLLM() ai.LanguageModel {
 	}
 	switch llmService.ServiceName {
 	case "openai":
-		llm = openai.New(llmService.APIKey, llmService.DefaultModel)
+		llm = openai.New(llmService)
 	case "openaicompatible":
-		llm = openai.NewCompatible(llmService.APIKey, llmService.URL, llmService.DefaultModel)
+		llm = openai.NewCompatible(llmService)
 	case "anthropic":
-		llm = anthropic.New(llmService.APIKey, llmService.DefaultModel)
+		llm = anthropic.New(llmService)
 	case "asksage":
-		llm = asksage.New(llmService.Username, llmService.Password, llmService.DefaultModel)
+		llm = asksage.New(llmService)
 	}
 
 	if cfg.EnableLLMTrace {
-		return NewLanguageModelLogWrapper(p.pluginAPI.Log, llm)
+		llm = NewLanguageModelLogWrapper(p.pluginAPI.Log, llm)
 	}
+
+	llm = NewLLMTruncationWrapper(llm)
 
 	return llm
 }
 
 func (p *Plugin) getImageGenerator() ai.ImageGenerator {
 	cfg := p.getConfiguration()
-	var imageGeneratorService ServiceConfig
+	var imageGeneratorService ai.ServiceConfig
 	for _, service := range cfg.Services {
 		if service.Name == cfg.ImageGenerator {
 			imageGeneratorService = service
@@ -152,9 +154,9 @@ func (p *Plugin) getImageGenerator() ai.ImageGenerator {
 	}
 	switch imageGeneratorService.ServiceName {
 	case "openai":
-		return openai.New(imageGeneratorService.APIKey, imageGeneratorService.DefaultModel)
+		return openai.New(imageGeneratorService)
 	case "openaicompatible":
-		return openai.NewCompatible(imageGeneratorService.APIKey, imageGeneratorService.URL, imageGeneratorService.DefaultModel)
+		return openai.NewCompatible(imageGeneratorService)
 	}
 
 	return nil
@@ -162,7 +164,7 @@ func (p *Plugin) getImageGenerator() ai.ImageGenerator {
 
 func (p *Plugin) getTranscribe() ai.Transcriber {
 	cfg := p.getConfiguration()
-	var transcriptionService ServiceConfig
+	var transcriptionService ai.ServiceConfig
 	for _, service := range cfg.Services {
 		if service.Name == cfg.TranscriptGenerator {
 			transcriptionService = service
@@ -171,9 +173,9 @@ func (p *Plugin) getTranscribe() ai.Transcriber {
 	}
 	switch transcriptionService.ServiceName {
 	case "openai":
-		return openai.New(transcriptionService.APIKey, transcriptionService.DefaultModel)
+		return openai.New(transcriptionService)
 	case "openaicompatible":
-		return openai.NewCompatible(transcriptionService.APIKey, transcriptionService.URL, transcriptionService.DefaultModel)
+		return openai.NewCompatible(transcriptionService)
 	}
 	return nil
 }
@@ -205,6 +207,16 @@ func (p *Plugin) handleMessages(post *model.Post) error {
 		return errors.Wrap(ErrNoResponse, "not responding to remote posts")
 	}
 
+	// Don't respond to plugins
+	if post.GetProp("from_plugin") != nil {
+		return errors.Wrap(ErrNoResponse, "not responding to plugin posts")
+	}
+
+	// Don't respond to webhooks
+	if post.GetProp("from_webhook") != nil {
+		return errors.Wrap(ErrNoResponse, "not responding to webhook posts")
+	}
+
 	channel, err := p.pluginAPI.Channel.Get(post.ChannelId)
 	if err != nil {
 		return errors.Wrap(err, "unable to get channel")
@@ -215,6 +227,11 @@ func (p *Plugin) handleMessages(post *model.Post) error {
 		return err
 	}
 
+	// Don't respond to other bots
+	if postingUser.IsBot || post.GetProp("from_bot") != nil {
+		return errors.Wrap(ErrNoResponse, "not responding to other bots")
+	}
+
 	switch {
 	// Check we are mentioned like @ai
 	case userIsMentioned(post.Message, BotUsername):
@@ -223,10 +240,6 @@ func (p *Plugin) handleMessages(post *model.Post) error {
 	// Check if this is post in the DM channel with the bot
 	case channel.Type == model.ChannelTypeDirect && strings.Contains(channel.Name, p.botid):
 		return p.handleDMs(channel, postingUser, post)
-
-	// Its a bot post from the calls plugin
-	case post.Type == CallsRecordingPostType && p.getConfiguration().EnableAutomaticCallsSummary:
-		return p.handleAutoCallsRecording(post, postingUser, channel)
 	}
 
 	return nil
@@ -235,10 +248,6 @@ func (p *Plugin) handleMessages(post *model.Post) error {
 func (p *Plugin) handleMentions(post *model.Post, postingUser *model.User, channel *model.Channel) error {
 	if err := p.checkUsageRestrictions(postingUser.Id, channel); err != nil {
 		return err
-	}
-
-	if postingUser.IsBot {
-		return errors.Wrap(ErrNoResponse, "not responding to other bots")
 	}
 
 	if err := p.processUserRequestToBot(p.MakeConversationContext(postingUser, channel, post)); err != nil {
@@ -253,30 +262,10 @@ func (p *Plugin) handleDMs(channel *model.Channel, postingUser *model.User, post
 		return err
 	}
 
-	if postingUser.IsBot {
-		return errors.Wrap(ErrNoResponse, "not responding to other bots")
-	}
-
 	if err := p.processUserRequestToBot(p.MakeConversationContext(postingUser, channel, post)); err != nil {
 		return errors.Wrap(err, "unable to process bot DM")
 	}
 
 	return nil
 
-}
-
-func (p *Plugin) handleAutoCallsRecording(post *model.Post, postingUser *model.User, channel *model.Channel) error {
-	if err := p.checkUsageRestrictionsForChannel(channel); err != nil {
-		return err
-	}
-
-	if !postingUser.IsBot || postingUser.Username != CallsBotUsername {
-		return errors.New("somone spoofing the calls plugin")
-	}
-
-	if err := p.handleCallRecordingPost(post, channel); err != nil {
-		return errors.Wrap(err, "unable to process calls recording")
-	}
-
-	return nil
 }
