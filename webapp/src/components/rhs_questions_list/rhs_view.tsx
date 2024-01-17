@@ -7,10 +7,10 @@
 /* eslint-disable @typescript-eslint/indent */
 /* eslint-disable react/jsx-indent-props */
 /* eslint-disable react/jsx-indent */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { createPost } from '../../client';
+import { createPost, getAIQuestions } from '../../client';
 
 import { StateProps } from './index';
 
@@ -42,72 +42,19 @@ const QuestionButton = styled.button`
   }
 `;
 
-const QuestionInput = styled.input`
-  padding: 5px 10px;
-  text-align: left;
-  border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
-  border-radius: 5px;
-  background-color: transparent;
-  width: 100%;
-`;
-
-const ButtonsContainer = styled.div`
-  display: flex;
-  gap: 5px;
-`;
-
-const DEFAULT_QUESTIONS = [
-  'Who are you?',
-  'Give me some training resources and accounts',
-  "What is your company's mission and vision?",
-];
-
 const RHSView = (props: StateProps) => {
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [questions, setQuestions] = useState<string[]>(DEFAULT_QUESTIONS);
-  const [questionInputs, setQuestionInputs] =
-    useState<string[]>(DEFAULT_QUESTIONS);
+  const [questions, setQuestions] = useState<string[]>([]);
 
   const {
     entities: {
-      users: { currentUserId, profiles },
+      users: { currentUserId },
     },
     pluginChannelId,
   } = props;
 
-  const { roles = '' } = profiles[currentUserId];
-  const isAdmin = roles.includes('system_admin');
-
-  const handleClickEditButton = () => {
-    setQuestionInputs(questions);
-    setIsEditMode(true);
-  };
-
-  const handleClickSaveButton = () => {
-    const newQuestions = questionInputs.filter(question => question);
-    setQuestions(newQuestions);
-    setIsEditMode(false);
-  };
-
-  const handleClickCancelButton = () => {
-    setIsEditMode(false);
-  };
-
-  const handleUpdateQuestion = (index: number, question: string) => {
-    if (questionInputs[index] === question) {
-      return;
-    }
-
-    const newQuestions = [...questionInputs];
-    newQuestions[index] = question;
-    setQuestionInputs(newQuestions);
-  };
-
-  const handleAddQuestion = () => {
-    const newQuestions = [...questionInputs, ''];
-    setQuestionInputs(newQuestions);
-  };
-
+  useEffect(() => {
+    getAIQuestions().then(({ data }) => setQuestions(data));
+  }, []);
   const handleClickQuestion = (question: string) => {
     const time = new Date().getTime();
     const newPost = {
@@ -130,66 +77,19 @@ const RHSView = (props: StateProps) => {
       <div className="RHSChannelBoards">
         <div className="rhs-boards-header">
           <span className="linked-boards">Mai Questions</span>
-          {isAdmin && !isEditMode && (
-            <button
-              type="button"
-              className="Button emphasis--primary"
-              onClick={handleClickEditButton}
-            >
-              <span>Edit</span>
-            </button>
-          )}
-          {isEditMode && (
-            <ButtonsContainer>
-              <button
-                type="button"
-                className="Button emphasis--secondary"
-                onClick={handleClickCancelButton}
-              >
-                <span>Cancel</span>
-              </button>
-              <button
-                type="button"
-                className="Button emphasis--primary"
-                onClick={handleClickSaveButton}
-              >
-                <span>Save</span>
-              </button>
-            </ButtonsContainer>
-          )}
         </div>
         <QuestionsList>
-          {!isEditMode &&
-            questions.map((question, index) => (
-              <li key={`mai-question-${index}`}>
-                <QuestionButton
-                  type="button"
-                  onClick={() => handleClickQuestion(question)}
-                >
-                  {question}
-                </QuestionButton>
-              </li>
-            ))}
-          {isEditMode &&
-            questionInputs.map((question, index) => (
-              <li key={`mai-question-${index}`}>
-                <QuestionInput
-                  type="text"
-                  defaultValue={question}
-                  onBlur={e => handleUpdateQuestion(index, e.target.value)}
-                />
-              </li>
-            ))}
+          {questions.map((question, index) => (
+            <li key={`mai-question-${index}`}>
+              <QuestionButton
+                type="button"
+                onClick={() => handleClickQuestion(question)}
+              >
+                {question}
+              </QuestionButton>
+            </li>
+          ))}
         </QuestionsList>
-        {isEditMode && (
-          <button
-            type="button"
-            className="Button emphasis--primary"
-            onClick={handleAddQuestion}
-          >
-            <span>New Question</span>
-          </button>
-        )}
       </div>
     </div>
   );
