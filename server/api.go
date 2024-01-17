@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +14,7 @@ import (
 const (
 	ContextPostKey    = "post"
 	ContextChannelKey = "channel"
+	MaiNodeEndpoint   = "http://ces-mai:8080"
 )
 
 // ServeHTTP demonstrates a plugin that handles HTTP requests by greeting the world.
@@ -29,6 +32,9 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	postRouter.POST("/transcribe", p.handleTranscribe)
 	postRouter.POST("/stop", p.handleStop)
 	postRouter.POST("/regenerate", p.handleRegenerate)
+
+	maiRouter := router.Group("/mai")
+	maiRouter.GET("/questions", p.handleGetMAIQuestions)
 
 	channelRouter := router.Group("/channel/:channelid")
 	channelRouter.Use(p.channelAuthorizationRequired)
@@ -78,4 +84,22 @@ func (p *Plugin) handleGetAIThreads(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, posts)
+}
+
+func (p *Plugin) handleGetMAIQuestions(c *gin.Context) {
+	response, err := http.Get(MaiNodeEndpoint + "/example-questions")
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "failed to get example questions"))
+		return
+	}
+	responseData, err := ioutil.ReadAll(response.Body)
+
+	data := string(responseData)
+	fmt.Printf("response: %+v\n", string(responseData))
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "invalid response from mai server"))
+		return
+	}
+
+	c.JSON(http.StatusOK, data)
 }
