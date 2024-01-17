@@ -24,10 +24,7 @@ const Hooks = (props) => {
     };
 
     return (
-        <div style={style}>
-            <div style={iconStyle}><IconAI/></div>
-            MAI is activated
-        </div>
+        <></>
     );
 };
 

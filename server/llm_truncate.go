@@ -39,3 +39,7 @@ func (w *LLMTruncationWrapper) CountTokens(text string) int {
 func (w *LLMTruncationWrapper) TokenLimit() int {
 	return w.wrapped.TokenLimit()
 }
+
+func (w *LLMTruncationWrapper) GenerateEmbeddings(text string) []float32 {
+	return w.wrapped.GenerateEmbeddings(text)
+}

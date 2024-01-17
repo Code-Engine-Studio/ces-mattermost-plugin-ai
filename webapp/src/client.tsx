@@ -154,3 +154,13 @@ export async function createPost(post: any) {
     const created = await Client4.createPost(post);
     return created;
 }
+
+export async function getAIQuestions() {
+	const url = `${baseRoute()}/mai/questions`;
+	const response = await fetch(url, Client4.getOptions({
+			method: 'GET',
+	}));
+
+	const data = JSON.parse(await response.json());
+	return data;
+}
