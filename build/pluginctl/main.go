@@ -76,6 +76,7 @@ func getClient() (*model.Client4, error) {
 	adminToken := os.Getenv("MM_ADMIN_TOKEN")
 	adminUsername := os.Getenv("MM_ADMIN_USERNAME")
 	adminPassword := os.Getenv("MM_ADMIN_PASSWORD")
+	adminMfa := os.Getenv("MM_ADMIN_MFA")
 
 	if siteURL == "" {
 		return nil, errors.New("MM_SERVICESETTINGS_SITEURL is not set")
@@ -92,9 +93,17 @@ func getClient() (*model.Client4, error) {
 	if adminUsername != "" && adminPassword != "" {
 		client := model.NewAPIv4Client(siteURL)
 		log.Printf("Authenticating as %s against %s.", adminUsername, siteURL)
-		_, _, err := client.Login(context.Background(), adminUsername, adminPassword)
-		if err != nil {
-			return nil, fmt.Errorf("failed to login as %s: %w", adminUsername, err)
+
+		if adminMfa != "" {
+			_, _, err := client.LoginWithMFA(context.Background(), adminUsername, adminPassword, adminMfa)
+			if err != nil {
+				return nil, fmt.Errorf("failed to login as %s: %w", adminUsername, err)
+			}
+		} else {
+			_, _, err := client.Login(context.Background(), adminUsername, adminPassword)
+			if err != nil {
+				return nil, fmt.Errorf("failed to login as %s: %w", adminUsername, err)
+			}
 		}
 
 		return client, nil

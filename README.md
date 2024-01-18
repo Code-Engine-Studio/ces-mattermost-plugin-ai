@@ -39,6 +39,9 @@ If there was a merge conflicts, follow these steps and resolve merge conflicts i
 -   `git commit -m "<put-some-messages-here>"` //Follow the commit styles
 -   `git push origin master`
 
+# Deploy to production
+- `bash ./deploy.sh`
+
 # Additional Resources
 
 -   [Original Mattermost AI Plugin](https://github.com/mattermost/mattermost-plugin-ai)
