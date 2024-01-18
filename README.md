@@ -39,6 +39,9 @@ If there was a merge conflicts, follow these steps and resolve merge conflicts i
 -   `git commit -m "<put-some-messages-here>"` //Follow the commit styles
 -   `git push origin master`
 
+# Deploy to production
+- MM_SERVICESETTINGS_SITEURL=http://localhost:8065 MM_ADMIN_MFA=<mfa-token> MM_ADMIN_USERNAME=<admin-username> MM_ADMIN_PASSWORD=<admin-password> make deploy
+
 # Additional Resources
 
 -   [Original Mattermost AI Plugin](https://github.com/mattermost/mattermost-plugin-ai)
