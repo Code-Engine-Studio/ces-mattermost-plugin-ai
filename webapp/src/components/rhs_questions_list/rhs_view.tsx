@@ -17,6 +17,21 @@ import { createPost, getAIQuestions } from '../../client';
 
 import { StateProps } from './index';
 
+const SidebarBody = styled.div`
+  overflow-y: auto;
+`;
+
+const Header = styled.div`
+  padding: 12px 16px;
+`;
+
+const Title = styled.span`
+  font-family: Metropolis;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+`;
+
 const QuestionsList = styled.ul`
   list-style-type: none;
   padding-left: 0;
@@ -27,6 +42,7 @@ const QuestionsList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-inline: 16px;
 `;
 
 const QuestionButton = styled.button`
@@ -74,15 +90,14 @@ const RHSView = (props: StateProps) => {
       reply_count: 0,
     };
     createPost(newPost).then(() => dispatch(selectChannel(pluginChannelId)));
-		
   };
 
   return (
-    <div className="focalboard-body">
-      <div className="RHSChannelBoards">
-        <div className="rhs-boards-header">
-          <span className="linked-boards">Mai Questions</span>
-        </div>
+    <SidebarBody>
+      <div>
+        <Header>
+          <Title>Mai Questions</Title>
+        </Header>
         <QuestionsList>
           {questions.map((question, index) => (
             <li key={`mai-question-${index}`}>
@@ -96,7 +111,7 @@ const RHSView = (props: StateProps) => {
           ))}
         </QuestionsList>
       </div>
-    </div>
+    </SidebarBody>
   );
 };
 

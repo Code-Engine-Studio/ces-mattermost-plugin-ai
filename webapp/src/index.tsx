@@ -15,16 +15,9 @@ import Hooks from './components/lsh_component';
 
 import { LLMBotPost } from './components/llmbot_post';
 import PostMenu from './components/post_menu';
-import IconThreadSummarization from './components/assets/icon_thread_summarization';
-import IconReactForMe from './components/assets/icon_react_for_me';
 import RHS from './components/rhs/rhs';
 import Config from './components/config/config';
-import {
-  doReaction,
-  doSummarize,
-  doTranscribe,
-  getAIDirectChannel,
-} from './client';
+import { getAIDirectChannel } from './client';
 import { setOpenRHSAction } from './redux_actions';
 import { BotUsername, BotDisplayName } from './constants';
 import PostEventListener from './websocket';
@@ -133,45 +126,6 @@ export default class Plugin {
     );
     if (registry.registerPostActionComponent) {
       registry.registerPostActionComponent(PostMenu);
-    } else {
-      registry.registerPostDropdownMenuAction(
-        <>
-          <span className="icon">
-            <IconThreadSummarization />
-          </span>
-          {'Summarize Thread'}
-        </>,
-        (postId: string) => {
-          const state = store.getState();
-          const team =
-            state.entities.teams.teams[state.entities.teams.currentTeamId];
-          window.WebappUtils.browserHistory.push(
-            '/' + team.name + '/messages/@' + BotUsername
-          );
-          doSummarize(postId);
-          if (rhs) {
-            store.dispatch(rhs.showRHSPlugin);
-          }
-        }
-      );
-      registry.registerPostDropdownMenuAction(
-        <>
-          <span className="icon">
-            <IconThreadSummarization />
-          </span>
-          {'Summarize Meeting Audio'}
-        </>,
-        doTranscribe
-      );
-      registry.registerPostDropdownMenuAction(
-        <>
-          <span className="icon">
-            <IconReactForMe />
-          </span>
-          {'React for me'}
-        </>,
-        doReaction
-      );
     }
 
     registry.registerAdminConsoleCustomSetting('Config', Config);
