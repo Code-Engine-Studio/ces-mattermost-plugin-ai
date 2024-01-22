@@ -9,6 +9,9 @@
 /* eslint-disable react/jsx-indent */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useDispatch } from 'react-redux';
+
+import { selectChannel } from '../../redux_actions';
 
 import { createPost, getAIQuestions } from '../../client';
 
@@ -43,6 +46,7 @@ const QuestionButton = styled.button`
 `;
 
 const RHSView = (props: StateProps) => {
+  const dispatch = useDispatch();
   const [questions, setQuestions] = useState<string[]>([]);
 
   const {
@@ -69,7 +73,8 @@ const RHSView = (props: StateProps) => {
       update_at: time,
       reply_count: 0,
     };
-    createPost(newPost);
+    createPost(newPost).then(() => dispatch(selectChannel(pluginChannelId)));
+		
   };
 
   return (

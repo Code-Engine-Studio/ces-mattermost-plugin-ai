@@ -5,7 +5,7 @@ networks:
 services:
   mattermost:
     container_name: mattermost
-    image: "mattermost/mattermost-enterprise-edition:7.9.0"
+    image: "mattermost/mattermost-enterprise-edition:8.1.8"
     restart: "unless-stopped"
     depends_on:
       - "db"

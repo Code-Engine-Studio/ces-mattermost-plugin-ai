@@ -1,42 +1,41 @@
-import React from "react";
-import { Store, Action } from "redux";
-import styled from "styled-components";
+import React from 'react';
+import { Store, Action } from 'redux';
+import styled from 'styled-components';
 
-import { GlobalState } from "@mattermost/types/lib/store";
+import { GlobalState } from '@mattermost/types/lib/store';
 
 //@ts-ignore it exists
-import aiIcon from "../../assets/bot_icon.png";
+import aiIcon from '../../assets/bot_icon.png';
 
-import IconAI from "./components/assets/icon_ai";
-import Chatbot from "./components/assets/chatbot.svg";
+import ChatbotIcon from './components/assets/chatbot';
 
-import RHSQuestionsList from "./components/rhs_questions_list";
+import RHSQuestionsList from './components/rhs_questions_list';
 
-import Hooks from "./components/lsh_component";
+import Hooks from './components/lsh_component';
 
-import { LLMBotPost } from "./components/llmbot_post";
-import PostMenu from "./components/post_menu";
-import IconThreadSummarization from "./components/assets/icon_thread_summarization";
-import IconReactForMe from "./components/assets/icon_react_for_me";
-import RHS from "./components/rhs/rhs";
-import Config from "./components/config/config";
+import { LLMBotPost } from './components/llmbot_post';
+import PostMenu from './components/post_menu';
+import IconThreadSummarization from './components/assets/icon_thread_summarization';
+import IconReactForMe from './components/assets/icon_react_for_me';
+import RHS from './components/rhs/rhs';
+import Config from './components/config/config';
 import {
   doReaction,
   doSummarize,
   doTranscribe,
   getAIDirectChannel,
-} from "./client";
-import { setOpenRHSAction } from "./redux_actions";
-import { BotUsername, BotDisplayName } from "./constants";
-import PostEventListener from "./websocket";
-import { setupRedux } from "./redux";
-import UnreadsSumarize from "./components/unreads_summarize";
+} from './client';
+import { setOpenRHSAction } from './redux_actions';
+import { BotUsername, BotDisplayName } from './constants';
+import PostEventListener from './websocket';
+import { setupRedux } from './redux';
+import UnreadsSumarize from './components/unreads_summarize';
 
-import { manifest } from "@/manifest";
+import { manifest } from '@/manifest';
 
 type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>;
 
-const StreamingPostWebsocketEvent = "custom_mattermost-ai_postupdate";
+const StreamingPostWebsocketEvent = 'custom_mattermost-ai_postupdate';
 
 const IconAIContainer = styled.img`
   border-radius: 50%;
@@ -73,12 +72,12 @@ export default class Plugin {
     }
     registry.registerReducer((state = {}, action: any) => {
       switch (action.type) {
-        case "SET_AI_BOT_CHANNEL":
+        case 'SET_AI_BOT_CHANNEL':
           return {
             ...state,
             botChannelId: action.botChannelId,
           };
-        case "SELECT_AI_POST":
+        case 'SELECT_AI_POST':
           return {
             ...state,
             selectedPostId: action.postId,
@@ -90,8 +89,8 @@ export default class Plugin {
 
     let currentUserId = store.getState().entities.users.currentUserId;
     if (currentUserId) {
-      getAIDirectChannel(currentUserId).then((botChannelId) => {
-        store.dispatch({ type: "SET_AI_BOT_CHANNEL", botChannelId } as any);
+      getAIDirectChannel(currentUserId).then(botChannelId => {
+        store.dispatch({ type: 'SET_AI_BOT_CHANNEL', botChannelId } as any);
       });
     }
 
@@ -100,13 +99,13 @@ export default class Plugin {
       if (state && state.entities.users.currentUserId !== currentUserId) {
         currentUserId = state.entities.users.currentUserId;
         if (currentUserId) {
-          getAIDirectChannel(currentUserId).then((botChannelId) => {
-            store.dispatch({ type: "SET_AI_BOT_CHANNEL", botChannelId } as any);
+          getAIDirectChannel(currentUserId).then(botChannelId => {
+            store.dispatch({ type: 'SET_AI_BOT_CHANNEL', botChannelId } as any);
           });
         } else {
           store.dispatch({
-            type: "SET_AI_BOT_CHANNEL",
-            botChannelId: "",
+            type: 'SET_AI_BOT_CHANNEL',
+            botChannelId: '',
           } as any);
         }
       }
@@ -129,7 +128,7 @@ export default class Plugin {
     };
 
     registry.registerPostTypeComponent(
-      "custom_llmbot",
+      'custom_llmbot',
       LLMBotPostWithWebsockets
     );
     if (registry.registerPostActionComponent) {
@@ -137,17 +136,17 @@ export default class Plugin {
     } else {
       registry.registerPostDropdownMenuAction(
         <>
-          <span className='icon'>
+          <span className="icon">
             <IconThreadSummarization />
           </span>
-          {"Summarize Thread"}
+          {'Summarize Thread'}
         </>,
         (postId: string) => {
           const state = store.getState();
           const team =
             state.entities.teams.teams[state.entities.teams.currentTeamId];
           window.WebappUtils.browserHistory.push(
-            "/" + team.name + "/messages/@" + BotUsername
+            '/' + team.name + '/messages/@' + BotUsername
           );
           doSummarize(postId);
           if (rhs) {
@@ -157,25 +156,25 @@ export default class Plugin {
       );
       registry.registerPostDropdownMenuAction(
         <>
-          <span className='icon'>
+          <span className="icon">
             <IconThreadSummarization />
           </span>
-          {"Summarize Meeting Audio"}
+          {'Summarize Meeting Audio'}
         </>,
         doTranscribe
       );
       registry.registerPostDropdownMenuAction(
         <>
-          <span className='icon'>
+          <span className="icon">
             <IconReactForMe />
           </span>
-          {"React for me"}
+          {'React for me'}
         </>,
         doReaction
       );
     }
 
-    registry.registerAdminConsoleCustomSetting("Config", Config);
+    registry.registerAdminConsoleCustomSetting('Config', Config);
     if (rhs) {
       registry.registerChannelHeaderButtonAction(
         <IconAIContainer src={aiIcon} />,
@@ -196,11 +195,7 @@ export default class Plugin {
       );
 
     registry.registerChannelHeaderButtonAction(
-      <img
-        width={19}
-        height={19}
-        src={Chatbot}
-      />,
+      <ChatbotIcon />,
       () => store.dispatch(toggleRHSPlugin),
       "Don't know what to ask Mai? Let her help you"
     );
