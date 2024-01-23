@@ -24,11 +24,12 @@ import PostEventListener from './websocket';
 import { setupRedux } from './redux';
 import UnreadsSumarize from './components/unreads_summarize';
 
-import { manifest } from '@/manifest';
+import { manifest } from "@/manifest";
+import plugin from "../../plugin.json"
 
 type WebappStore = Store<GlobalState, Action<Record<string, unknown>>>;
 
-const StreamingPostWebsocketEvent = 'custom_mattermost-ai_postupdate';
+const StreamingPostWebsocketEvent = `custom_${plugin.id}_postupdate`;
 
 const IconAIContainer = styled.img`
   border-radius: 50%;
